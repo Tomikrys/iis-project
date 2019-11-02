@@ -1,0 +1,183 @@
+<?php
+
+namespace App\Entity;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\TournamentRepository")
+ */
+class Tournament
+{
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $date;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $price;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $field_count;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $max_teams_count;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Team", inversedBy="tournaments")
+     */
+    private $teams;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Game", mappedBy="tournament")
+     */
+    private $games;
+
+    public function __construct()
+    {
+        $this->teams = new ArrayCollection();
+        $this->games = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?int $price): self
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
+    public function getFieldCount(): ?int
+    {
+        return $this->field_count;
+    }
+
+    public function setFieldCount(?int $field_count): self
+    {
+        $this->field_count = $field_count;
+
+        return $this;
+    }
+
+    public function getMaxTeamsCount(): ?int
+    {
+        return $this->max_teams_count;
+    }
+
+    public function setMaxTeamsCount(?int $max_teams_count): self
+    {
+        $this->max_teams_count = $max_teams_count;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Team[]
+     */
+    public function getTeams(): Collection
+    {
+        return $this->teams;
+    }
+
+    public function addTeam(Team $team): self
+    {
+        if (!$this->teams->contains($team)) {
+            $this->teams[] = $team;
+        }
+
+        return $this;
+    }
+
+    public function removeTeam(Team $team): self
+    {
+        if ($this->teams->contains($team)) {
+            $this->teams->removeElement($team);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Game[]
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
+    }
+
+    public function addGame(Game $game): self
+    {
+        if (!$this->games->contains($game)) {
+            $this->games[] = $game;
+            $game->setTournament($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGame(Game $game): self
+    {
+        if ($this->games->contains($game)) {
+            $this->games->removeElement($game);
+            // set the owning side to null (unless already changed)
+            if ($game->getTournament() === $this) {
+                $game->setTournament(null);
+            }
+        }
+
+        return $this;
+    }
+}

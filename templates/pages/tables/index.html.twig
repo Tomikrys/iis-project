@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ table_name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ table_name }}</h1>
+    <table id="table" class="table table-hover table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                {% for header in table.headers %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+                <th>
+                    Úpravy
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table.rows %}
+                <tr>
+                    {% for data in row.data %}
+                        <td>{{ data }}</td>
+                    {% endfor %}
+                    <td>
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editFormModal">Upravit</button>
+                        <a href="#" class="btn btn-danger delete-food" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat</button>
+
+    <!-- modal na přidání jídla -->
+    <div class="modal fade" id="addFormModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Přidat</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    {{ form_start(formadd) }}
+                    {{ form_widget(formadd) }}
+                    {{ form_end(formadd) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+    const table = document.getElementById('table');
+    if (table) {
+//    deleting item
+        table.addEventListener('click', e => {
+            if ($(e.target).hasClass('delete-food')) {
+                // $("#loading").modal("show");
+                if (confirm('Opravdu?')) {
+                    const id = e.target.getAttribute('data-id');
+                    const table = e.target.getAttribute('data-table');
+                    fetch(`/${table}/delete/${id}`, {
+                        method: 'DELETE'
+                    }).then(res => window.location.reload());
+                }
+                // $("#loading").modal("hide");
+            }
+        })
+    }
+</script>
+{% endblock %}
