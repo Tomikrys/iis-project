@@ -39,6 +39,7 @@ class PlayerController extends AbstractController {
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($player);
         $entityManager->flush();
+        // vytvoření flash oznámení
         $this->addFlash('warning', 'Hráč byl odstraněn.');
         $response = new Response();
         $response->send();
