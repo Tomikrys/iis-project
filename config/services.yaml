@@ -5,9 +5,9 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-    DATABASE_HOST: localhost
-    DATABASE_USER: iis
-    DATABASE_PASSWORD: IISpr0ject
+    DATABASE_HOST: ctgplw90pifdso61.cbetxkdyhwsb.us-east-1.rds.amazonaws.com
+    DATABASE_USER: cmgyv8smbhtf6nk7
+    DATABASE_PASSWORD: hj4o7qeobi1yoh4q
 
 services:
     # default configuration for services in *this* file
