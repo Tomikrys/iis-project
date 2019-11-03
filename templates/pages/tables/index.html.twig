@@ -21,7 +21,8 @@
                         <td>{{ data }}</td>
                     {% endfor %}
                     <td>
-                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editFormModal">Upravit</button>
+                        <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-warning edit-food">Upravit</a>
+{#                        <button type="button" class="btn btn-warning edit-food" data-toggle="modal" data-id="{{ row.id }}" data-target="#editFormModal">Upravit</button>#}
                         <a href="#" class="btn btn-danger delete-food" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
                     </td>
                 </tr>
@@ -30,26 +31,8 @@
     </table>
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat</button>
 
-    <!-- modal na přidání jídla -->
-    <div class="modal fade" id="addFormModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Přidat</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="modal-body">
-                    {{ form_start(formadd) }}
-                    {{ form_widget(formadd) }}
-                    {{ form_end(formadd) }}
-                </div>
-            </div>
-        </div>
-    </div>
+    {{ include('pages/tables/parts/add_form_modal.html.twig') }}
+{#    {{ include('pages/tables/parts/edit_form_modal.html.twig') }}#}
 {% endblock %}
 
 {% block javascripts %}
@@ -61,7 +44,7 @@
         table.addEventListener('click', e => {
             if ($(e.target).hasClass('delete-food')) {
                 // $("#loading").modal("show");
-                if (confirm('Opravdu?')) {
+                if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
                     const id = e.target.getAttribute('data-id');
                     const table = e.target.getAttribute('data-table');
                     fetch(`/${table}/delete/${id}`, {

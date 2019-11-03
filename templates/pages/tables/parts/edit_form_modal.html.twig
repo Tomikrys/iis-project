@@ -1,0 +1,20 @@
+<!-- modal na přidání jídla -->
+<div class="modal fade" id="editFormModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Upravit</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                {{ form_start(formedit) }}
+                {{ form_widget(formedit) }}
+                {{ form_end(formedit) }}
+            </div>
+        </div>
+    </div>
+</div>

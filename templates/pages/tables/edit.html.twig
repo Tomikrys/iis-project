@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+    {{ form_start(formedit) }}
+    {{ form_widget(formedit) }}
+    {{ form_end(formedit) }}
+{% endblock %}
+
+{% block javascripts %}
+{% endblock %}

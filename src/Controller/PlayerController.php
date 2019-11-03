@@ -40,13 +40,64 @@ class PlayerController extends AbstractController {
         $entityManager->remove($player);
         $entityManager->flush();
         // vytvoření flash oznámení
-        $this->addFlash('warning', 'Hráč byl odstraněn.');
+        $this->addFlash('warning', 'Hráč \'' . $player->getName() . '\' byl odstraněn.');
         $response = new Response();
         $response->send();
     }
 
+
     /**
-     * @Route("/players")
+     * @param $player
+     * @return \Symfony\Component\Form\FormInterface
+     */
+    public function make_form($player) {
+        // vytvoření formuláře pro přidání záznamu
+        $form = $this->createFormBuilder($player)
+            ->add('name', TextType::class, array( 'attr'=> array(
+                'class' => 'form-control',
+                'label' => 'Jméno') ))
+            ->add('is_girl', ChoiceType::class, array(
+                'choices'  => [
+                    'Muž' => false,
+                    'Žena' => true
+                ],
+                'attr' => array('class' => 'custom-select'),
+                'label' => 'Pohlaví' ))
+            ->add('phone', TextType::class, array( 'attr'=> array(
+                'class' => 'form-control',
+                'label' => 'Telefon') ))
+            ->add('email', TextType::class, array( 'attr'=> array(
+                'class' => 'form-control',
+                'label' => 'Email') ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Uložit',
+                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')) )
+            ->getForm();
+        return $form;
+    }
+
+    /**
+     * @Route("/players/edit/{id}")
+     * @Method({"GET", "POST"})
+     */
+    public function edit(Request $request, $id) {
+        $title = "Editace hráče";
+        $player = $this->getDoctrine()->getRepository(Player::class)->find($id);
+        $formedit = $this->make_form($player);
+
+        // Zpracování add formuláře.
+        $formedit->handleRequest($request);
+        if ($formedit->isSubmitted() && $formedit->isValid()) {
+            $this->playerRepository->save($player);
+            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně editován.');
+            return $this->redirect($this->generateUrl('/players'));
+        }
+
+        return $this->render('pages/tables/edit.html.twig', array('title' => $title, 'formedit' => $formedit->createView()));
+    }
+
+    /**
+     * @Route("/players", name="/players")
      * @Method({"GET", "POST"})
      */
     public function index(Request $request) {
@@ -65,38 +116,32 @@ class PlayerController extends AbstractController {
             array_push($table['rows'], $row);
         }
 
-        $new_player = new Player();
-        // vytvoření formuláře pro přidání záznamu
-        $formadd = $this->createFormBuilder($new_player)
-            ->add('name', TextType::class, array( 'attr'=> array(
-                'class' => 'form-control',
-                'label' => 'Jméno') ))
-            ->add('is_girl', ChoiceType::class, array(
-                'choices'  => [
-                    'Muž' => false,
-                    'Žena' => true
-                ],
-                'attr' => array('class' => 'custom-select'),
-                'label' => 'Pohlaví' ))
-            ->add('phone', TextType::class, array( 'attr'=> array(
-                'class' => 'form-control',
-                'label' => 'Telefon') ))
-            ->add('email', TextType::class, array( 'attr'=> array(
-                'class' => 'form-control',
-                'label' => 'Email') ))
-            ->add('submit', SubmitType::class, array(
-                'label' => 'Přidat hráče',
-                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')) )
-            ->getForm();
 
-        // Zpracování editačního formuláře.
+        $new_player = new Player();
+        $formadd = $this->make_form($new_player);
+
+        // Zpracování add formuláře.
         $formadd->handleRequest($request);
         if ($formadd->isSubmitted() && $formadd->isValid()) {
             $this->playerRepository->save($new_player);
-            $this->addFlash('success', 'Hráč byl úspěšně uložen.');
-            return $this->render('pages/tables/index.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
+            $this->addFlash('success', 'Hráč \'' . $new_player->getName() . '\' byl úspěšně přidán.');
+            return $this->redirect($request->getUri());
         }
+/*
+        // TODO get id
+        $player = $this->getDoctrine()->getRepository(Player::class)->find(29);
+        $formedit = $this->make_form($player);
 
+        // Zpracování add formuláře.
+        $formedit->handleRequest($request);
+        if ($formedit->isSubmitted() && $formedit->isValid()) {
+            $this->playerRepository->save($player);
+            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně editován.');
+            return $this->redirect($request->getUri());
+        }
+*/
+
+        //   return $this->render('pages/tables/index.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'formedit' => $formedit->createView(), 'table' => $table));
         return $this->render('pages/tables/index.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
     }
 
