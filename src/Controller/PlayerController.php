@@ -104,7 +104,7 @@ class PlayerController extends AbstractController {
         // promněnné pro výpis
         $table_name = "Tabulka hráčů";
         $table['name'] = "players";
-        $table['headers'] = array("Jmeno", "Pohlavi", "Telefon", "Email");
+        $table['headers'] = array("Jméno", "Pohlaví", "Telefon", "Email");
         $table['rows'] = array();
 
         // naplnění struktury pro výpis tabulky
@@ -112,6 +112,7 @@ class PlayerController extends AbstractController {
         $player = null;
         foreach($players as $player){
             $row['id'] = $player->getId();
+            $row['link'] = false;
             $row['data'] = array($player->getName(), $player->getGender(), $player->getPhone(), $player->getEmail());
             array_push($table['rows'], $row);
         }

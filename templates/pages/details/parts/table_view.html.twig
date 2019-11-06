@@ -1,0 +1,19 @@
+<table id="table" class="table table-hover table-sm table-bordered">
+    <thead class="thead-dark">
+    <tr>
+        {% for header in table.headers %}
+            <th>{{ header }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in table.rows %}
+        <tr>
+            {% for data in row.data %}
+                <td>{{ data }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat</button>

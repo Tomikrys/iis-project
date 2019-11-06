@@ -1,0 +1,33 @@
+<table id="table" class="table table-hover table-sm table-bordered">
+    <thead class="thead-dark">
+    <tr>
+        {% for header in table.headers %}
+            <th>{{ header }}</th>
+        {% endfor %}
+        <th>
+            Úpravy
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in table.rows %}
+        <tr>
+            {% if row.link == true %}
+                {% for data in row.data %}
+                    <td><a href="/{{ table.name }}/detail/{{ row.id }}">{{ data }}</a></td>
+                {% endfor %}
+            {% else %}
+                {% for data in row.data %}
+                    <td>{{ data }}</td>
+                {% endfor %}
+            {% endif %}
+            <td>
+                <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-warning edit-food">Upravit</a>
+                {#                        <button type="button" class="btn btn-warning edit-food" data-toggle="modal" data-id="{{ row.id }}" data-target="#editFormModal">Upravit</button>#}
+                <a href="#" class="btn btn-danger delete-food" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat</button>

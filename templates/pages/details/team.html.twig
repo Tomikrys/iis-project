@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+    <h1>Detail týmu: {{ team.name }}</h1>
+    <h2>Logo:</h2>
+{#    TODO add logo#}
+    <h2>Hráči v týmu:</h2>
+    {{ include('pages/details/parts/table_view.html.twig') }}
+
+    {{ include('pages/details/parts/add_form_modal.html.twig') }}
+    {#    {{ include('pages/tables/parts/edit_form_modal.html.twig') }}#}
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+
+        const table = document.getElementById('table');
+        if (table) {
+//    deleting item
+            table.addEventListener('click', e => {
+                if ($(e.target).hasClass('delete-food')) {
+                    // $("#loading").modal("show");
+                    if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
+                        const id = e.target.getAttribute('data-id');
+                        const table = e.target.getAttribute('data-table');
+                        fetch(`/${table}/delete/${id}`, {
+                            method: 'DELETE'
+                        }).then(res => window.location.reload());
+                    }
+                    // $("#loading").modal("hide");
+                }
+            })
+        }
+    </script>
+{% endblock %}
