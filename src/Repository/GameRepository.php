@@ -18,6 +18,10 @@ class GameRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Game::class);
     }
+    public function save(Game $game): void {
+        $this->getEntityManager()->persist($game);
+        $this->getEntityManager()->flush($game);
+    }
 
     // /**
     //  * @return Game[] Returns an array of Game objects

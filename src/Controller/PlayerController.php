@@ -53,22 +53,26 @@ class PlayerController extends AbstractController {
     public function make_form($player) {
         // vytvoření formuláře pro přidání záznamu
         $form = $this->createFormBuilder($player)
-            ->add('name', TextType::class, array( 'attr'=> array(
-                'class' => 'form-control',
-                'label' => 'Jméno') ))
+            ->add('name', TextType::class, array(
+                'label' => 'Jméno',
+                'attr'=> array('class' => 'form-control')
+            ))
             ->add('is_girl', ChoiceType::class, array(
-                'choices'  => [
+                'label' => 'Pohlaví',
+                'choices'  => array(
                     'Muž' => false,
                     'Žena' => true
-                ],
-                'attr' => array('class' => 'custom-select'),
-                'label' => 'Pohlaví' ))
-            ->add('phone', TextType::class, array( 'attr'=> array(
-                'class' => 'form-control',
-                'label' => 'Telefon') ))
-            ->add('email', TextType::class, array( 'attr'=> array(
-                'class' => 'form-control',
-                'label' => 'Email') ))
+                ),
+                'attr' => array('class' => 'custom-select')
+            ))
+            ->add('phone', TextType::class, array(
+                'label' => 'Telefon',
+                'attr'=> array('class' => 'form-control')
+            ))
+            ->add('email', TextType::class, array(
+                'label' => 'Email',
+                'attr'=> array('class' => 'form-control')
+            ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Uložit',
                 'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')) )

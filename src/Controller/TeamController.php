@@ -40,9 +40,10 @@ class TeamController extends AbstractController
     {
         // vytvoření formuláře pro přidání záznamu
         $form = $this->createFormBuilder($team)
-            ->add('name', TextType::class, array('attr' => array(
-                'class' => 'form-control',
-                'label' => 'Jméno')))
+            ->add('name', TextType::class, array(
+                'label' => 'Jméno',
+                'attr' => array('class' => 'form-control')
+            ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Uložit',
                 'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')))
@@ -122,7 +123,7 @@ class TeamController extends AbstractController
             $player = $this->getDoctrine()->getRepository(Player::class)->find($add_player->getName());
             // TODO nefunguje add player :{
             $team->addPlayer($player);
-            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně  do týmu \'' . $team->getName() . '\'.');
+            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně  do týmu \'' . $tournament->getName() . '\'.');
             return $this->redirect($request->getUri());
         }
 
