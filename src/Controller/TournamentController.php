@@ -143,8 +143,9 @@ class TournamentController extends AbstractController
         if ($formadd->isSubmitted() && $formadd->isValid()) {
             // sic je tady getName, tak do name jsem výše uložil ID toho hráča, takže se hledá podle ID, sorry.
             $team = $this->getDoctrine()->getRepository(Team::class)->find($add_team->getName());
-            // TODO nefunguje add player :{
             $tournament->addTeam($team);
+            $this->getDoctrine()->getManager()->persist($tournament);
+            $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně  do turnaje \'' . $team->getName() . '\'.');
             return $this->redirect($request->getUri());
         }
