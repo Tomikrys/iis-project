@@ -59,8 +59,8 @@ class TournamentController extends AbstractController
                 'label' => 'Cena',
                 'attr' => array('class' => 'form-control')
             ))
-            ->add('field_count', IntegerType::class, array(
-                'label' => 'Počet hřišť',
+            ->add('plays_in_game', IntegerType::class, array(
+                'label' => 'Počet her na set',
                 'attr' => array('class' => 'form-control')
             ))
             ->add('max_teams_count', IntegerType::class, array(
@@ -192,7 +192,7 @@ class TournamentController extends AbstractController
         // promněnné pro výpis
         $table_name = "Tabulka turnajů";
         $table['name'] = "tournaments";
-        $table['headers'] = array("Název", "Datum", "Cena", "Počet hřišť", "Maximální počet týmů");
+        $table['headers'] = array("Název", "Datum", "Cena", "Počer her na set", "Maximální počet týmů");
         $table['rows'] = array();
 
         // naplnění struktury pro výpis tabulky
@@ -200,7 +200,7 @@ class TournamentController extends AbstractController
         $tournament = null;
         foreach ($tournaments as $tournament) {
             $row['id'] = $tournament->getId();
-            $row['data'] = array($tournament->getName(), $tournament->getDate()->format('d. m. Y'), $tournament->getPrice(), $tournament->getFieldCount(), $tournament->getMaxTeamsCount());
+            $row['data'] = array($tournament->getName(), $tournament->getDate()->format('d. m. Y'), $tournament->getPrice(), $tournament->getPlaysInGame(), $tournament->getMaxTeamsCount());
             $row['link'] = true;
             array_push($table['rows'], $row);
         }
