@@ -29,16 +29,6 @@ class Game
     private $team2;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $points_team1;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $points_team2;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Tournament", inversedBy="games")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -48,6 +38,16 @@ class Game
      * @ORM\Column(type="integer")
      */
     private $round;
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $points_team1 = [];
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $points_team2 = [];
 
     public function getId(): ?int
     {
@@ -78,30 +78,6 @@ class Game
         return $this;
     }
 
-    public function getPointsTeam1(): ?int
-    {
-        return $this->points_team1;
-    }
-
-    public function setPointsTeam1(?int $points_team1): self
-    {
-        $this->points_team1 = $points_team1;
-
-        return $this;
-    }
-
-    public function getPointsTeam2(): ?int
-    {
-        return $this->points_team2;
-    }
-
-    public function setPointsTeam2(?int $points_team2): self
-    {
-        $this->points_team2 = $points_team2;
-
-        return $this;
-    }
-
     public function getTournament(): ?Tournament
     {
         return $this->tournament;
@@ -122,6 +98,30 @@ class Game
     public function setRound(int $round): self
     {
         $this->round = $round;
+
+        return $this;
+    }
+
+    public function getPointsTeam1(): ?array
+    {
+        return $this->points_team1;
+    }
+
+    public function setPointsTeam1(?array $points_team1): self
+    {
+        $this->points_team1 = $points_team1;
+
+        return $this;
+    }
+
+    public function getPointsTeam2(): ?array
+    {
+        return $this->points_team2;
+    }
+
+    public function setPointsTeam2(?array $points_team2): self
+    {
+        $this->points_team2 = $points_team2;
 
         return $this;
     }

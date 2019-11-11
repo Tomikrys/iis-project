@@ -3,38 +3,70 @@
 
 {% block body %}
     <h1>Pavouk pro turnaj: {{ tournament.name }}</h1>
-    <div class="col">
-        {% for game in games %}
-            <div class="row">
-                <div class="card border-primary mb-3" style="max-width: 20rem;">
-                    <div class="card-header p-1 pl-3 pr-3"><span class="h3">{{ game.team1.name }}</span> <span class="h5">vs</span> <span class="h3">{{ game.team2.name }}</span></div>
-                    <div class="card-body p-1">
-                        <table class="table table-hover table-sm table-bordered mb-0">
-                            <tr>
-                                <td>{{ game.team1.name }}</td>
-                                {% for i in 1..tournament.PlaysInGame %}
-                                    <td class="team1_poins" contenteditable="true"></td>
-                                {% endfor %}
-                            </tr>
-                            <tr class="team1_poins">
-                                <td>{{ game.team2.name }}</td>
-                                {% for i in 1..tournament.PlaysInGame %}
-                                    <td class="team2_poins" contenteditable="true"></td>
-                                {% endfor %}
-                            </tr>
-                        </table>
-                        <a href="#" class="btn btn-success save state pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
-                            Uložit stav
-                        </a>
+    <div id="map">
+        <div class="col">
+            {% for game in games %}
+                <div class="row">
+                    <div class="card border-primary mb-3" style="max-width: 20rem;">
+                        <div class="card-header p-1 pl-3 pr-3"><span class="h3">{{ game.team1.name }}</span> <span class="h5">vs</span> <span class="h3">{{ game.team2.name }}</span></div>
+                        <div class="card-body p-1">
+                            <table class="table table-hover table-sm table-bordered mb-0">
+                                <tr>
+                                    <td>{{ game.team1.name }}</td>
+                                    {% for i in 1..tournament.PlaysInGame %}
+                                        <td class="team1_points" contenteditable="true">{{ game.PointsTeam1[i-1] }}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr class="team1_poins">
+                                    <td>{{ game.team2.name }}</td>
+                                    {% for i in 1..tournament.PlaysInGame %}
+                                        <td class="team2_points" contenteditable="true">{{ game.PointsTeam2[i-1] }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </table>
+                            <a href="#" data-id="{{ game.id }}" class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
+                                Uložit stav
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
 
 {% block javascripts %}
     <script>
-
+        const map = document.getElementById('map');
+        if (map) {
+            map.addEventListener('click', e => {
+                if ($(e.target).hasClass('save-score')) {
+                    $("#loading").modal("show");
+                    const id = e.target.getAttribute('data-id');
+                    const team1_score = e.target.parentElement.getElementsByClassName("team1_points");
+                    const team2_score = e.target.parentElement.getElementsByClassName("team2_points");
+                    team1_score_array = [];
+                    team2_score_array = [];
+                    for (var i = 0; i < team1_score.length; i++) {
+                        let score = team1_score[i].innerText;
+                        team1_score_array.push(score);
+                        score = team2_score[i].innerText;
+                        team2_score_array.push(score);
+                    }
+                    const teams_score_json = {
+                        team1: team1_score_array,
+                        team2: team2_score_array,
+                    };
+                    fetch(`/game/update_score/${id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify(teams_score_json), // data can be `string` or {object}!
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(res => window.location.reload());
+                    $("#loading").modal("hide");
+                }
+            })
+        }
     </script>
 {% endblock %}

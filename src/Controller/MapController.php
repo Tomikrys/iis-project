@@ -48,6 +48,14 @@ class MapController extends TournamentController {
                 $game->setTeam2($team);
                 $game->setTournament($tournament);
                 $game->setRound(1);
+                // naplnen0 bod; teamu prázdným polem o počtu prvcích, kolik her má turnaj mít.
+                $array = [];
+                for ($j = 1; $j <= $tournament->getPlaysInGame(); $j++) {
+                    array_push($array, " ");
+                }
+                $game->setPointsTeam1($array);
+                $game->setPointsTeam2($array);
+
                 $entityManager->persist($game);
                 $entityManager->flush();
             }

@@ -31,15 +31,18 @@
     <script>
         function generate_games(id) {
             // generating games
+            $("#loading").modal("show");
             const url = '/tournaments/detail/' + id + '/generate';
             try {
                 const response = fetch(url, {
                     method: 'POST'
-                }).then(res => window.location.reload());
+                });
+                //}).then(res => window.location.reload());
                 console.log('Success');
             } catch (error) {
                 console.error('Error:', error);
             }
+            $("#loading").modal("hide");
         }
 
         const table = document.getElementById('table');
