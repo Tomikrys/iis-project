@@ -8,15 +8,15 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://bootswatch.com/4/sketchy/bootstrap.min.css">
 
-        <link href="https://fonts.googleapis.com/css?family=Amatic+SC:700&display=swap|Pangolin&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Amatic+SC:700|Shadows+Into+Light+Two&display=swap&subset=latin-ext" rel="stylesheet">
 {#        <link rel="stylesheet" href="{{ asset('offline/bootstrap.min.css') }}" />#}
 {#        <script src="{{ asset('offline/jquery-3.3.1.slim.min.js') }}"></script>#}
 {#        <script src="{{ asset('offline/popper.min.js') }}"></script>#}
 {#        <script src="{{ asset('offline/bootstrap.min.js') }}"></script>#}
 {#        <link rel="stylesheet" href="{{ asset('offline/bootswatch.min.css') }}" />#}
 
-        <link rel="stylesheet" href="{{ asset('offline/style.css') }}" />
-        <script src="{{ asset('offline/script.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('style.css') }}" />
+        <script src="{{ asset('script.js') }}"></script>
 
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
@@ -39,6 +39,36 @@
                 {% block body %}{% endblock %}
             </div>
         </main>
+
+        <!-- modal na loading -->
+        <div class="modal fade" id="loading">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content" style="background-color: transparent; border: none;">
+                    {#            <img class="align-self-center" src="https://i.imgur.com/RlS6YST.gif" width="32px" height="32px">#}
+                    <img class="align-self-center" src="https://media.giphy.com/media/qXx4nhKNp4qhG/giphy.gif" width="400" height="225">
+                </div>
+            </div>
+        </div>
+
+        <!-- modal na delete -->
+        <div class='modal fade' id='deleteModal'>
+            <div class='modal-dialog modal-sm'>
+                <div class='modal-content'>
+                    <!-- Modal Header -->
+                    <div class='modal-header'>
+                        <h4 class='modal-title'>{# doplní js #}</h4>
+                        <button type='button' class='close' data-dismiss='modal'>&times;</button>
+                    </div>
+                    <!-- Modal body -->
+                    <div class='modal-body'>{# doplní js #}</div>
+                    <div class='modal-footer'>
+                        <button class='btn btn-danger doAction'>{# doplní js #}</button>
+                        <button class='btn btn-primary cancelAction'>{# doplní js #}</button>
+                    </div>
+                </div>
+             </div>
+         </div>
+
         {{ include('parts/footer.html.twig') }}
         {% block javascripts %}{% endblock %}
     </body>

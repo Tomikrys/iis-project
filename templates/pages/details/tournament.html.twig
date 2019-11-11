@@ -4,6 +4,10 @@
 {% block body %}
     <h1>Detail turnaje: {{ tournament.name }}</h1>
 
+    <h2>Pavouk</h2>
+    <a href="/tournaments/detail/{{ tournament.id }}/map" class="btn btn-success">Zobrazit pavouka</a>
+    <button onclick="generate_games({{ tournament.id }})" class="btn btn-danger">Generovat pavouka</button>
+
     <h2>Datum</h2>
     <p>{{ tournament_date }}</p>
 
@@ -25,21 +29,33 @@
 
 {% block javascripts %}
     <script>
+        function generate_games(id) {
+            // generating games
+            const url = '/tournaments/detail/' + id + '/generate';
+            try {
+                const response = fetch(url, {
+                    method: 'POST'
+                }).then(res => window.location.reload());
+                console.log('Success');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
 
         const table = document.getElementById('table');
         if (table) {
 //    deleting item
             table.addEventListener('click', e => {
-                if ($(e.target).hasClass('delete-food')) {
-                    // $("#loading").modal("show");
+                if ($(e.target).hasClass('delete-item')) {
                     if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
+                        $("#loading").modal("show");
                         const id = e.target.getAttribute('data-id');
                         const table = e.target.getAttribute('data-table');
-                        fetch(`/${table}/delete/${id}`, {
+                        fetch(`/${table}/unlink/${id}`, {
                             method: 'DELETE'
                         }).then(res => window.location.reload());
+                        $("#loading").modal("hide");
                     }
-                    // $("#loading").modal("hide");
                 }
             })
         }

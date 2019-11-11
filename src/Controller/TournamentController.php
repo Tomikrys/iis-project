@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Team;
 use App\Entity\Tournament;
 use App\Repository\TournamentRepository;
+use Psr\Container\ContainerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -15,6 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TournamentController extends AbstractController
@@ -72,6 +74,33 @@ class TournamentController extends AbstractController
             ->getForm();
         return $form;
     }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @Route("/tournament/delete/{id}", methods={"DELETE"})
+     */
+    public function delete(Request $request, $id) {
+        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($tournament);
+        $entityManager->flush();
+        // vytvoření flash oznámení
+        $this->addFlash('warning', 'Turnaj \'' . $tournament->getName() . '\' byl odstraněn.');
+        $response = new Response();
+        $response->send();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @Route("/tournament/unlink/{id}", methods={"DELETE"})
+     */
+    public function remove_team(Request $request, $id) {
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        $this->removeTeam($team);
+    }
+
     /**
      * @Route("/tournaments/edit/{id}")
      * @Method({"GET", "POST"})
@@ -118,6 +147,7 @@ class TournamentController extends AbstractController
         }
 
         $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+        $form_teams = null;
         foreach ($all_teams as $team) {
             // slouží k výpisu jen hráču, co ještě nejsou v týmu
             if (!$teams->contains($team)) {
@@ -155,8 +185,7 @@ class TournamentController extends AbstractController
     }
 
     /**
-     * @Route("/tournaments", name="/tournaments")
-     * @Method({"GET", "POST"})
+     * @Route("/tournaments", name="/tournaments", methods={"GET", "POST"})
      */
     public function index(Request $request)
     {

@@ -11,21 +11,41 @@
 
 {% block javascripts %}
 <script>
+    function Confirm(title, msg, $true, $false) {
+        $("#deleteModal").modal("show");
+        $("#deleteModal .modal-title").html(title);
+        $("#deleteModal .modal-body").html(msg);
+        $("#deleteModal .doAction").html($true);
+        $("#deleteModal .cancelAction").html($false);
+
+        $('#deleteModal .doAction').click(function () {
+            $("#deleteModal").modal("hide");
+            // return true;
+        });
+        $('#deleteModal .cancelAction,#deleteModal .fa-close').click(function () {
+            $("#deleteModal").modal("hide");
+            // return false;
+        });
+    }
 
     const table = document.getElementById('table');
     if (table) {
 //    deleting item
         table.addEventListener('click', e => {
-            if ($(e.target).hasClass('delete-food')) {
-                // $("#loading").modal("show");
-                if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
+            if ($(e.target).hasClass('delete-item')) {
+                // TODO opravit modal
+                if (Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit')) {
+                    alert("hello");
+                    $("#loading").modal("show");
+                    alert(`/${table}/delete/${id}`);
                     const id = e.target.getAttribute('data-id');
                     const table = e.target.getAttribute('data-table');
                     fetch(`/${table}/delete/${id}`, {
                         method: 'DELETE'
                     }).then(res => window.location.reload());
+                    $("#loading").modal("hide");
                 }
-                // $("#loading").modal("hide");
+                alert("sranda");
             }
         })
     }

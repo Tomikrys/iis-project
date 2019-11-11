@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+    <h1>Detail hráče: {{ player.name }}</h1>
+
+    <h2>Pohlaví</h2>
+    <p>{{ player.gender }}</p>
+
+    <h2>Telefon</h2>
+    <p>{{ player.phone }}</p>
+
+    <h2>Email</h2>
+    <p>{{ player.email }}</p>
+
+    <h2>Týmy do nichž patří</h2>
+    {{ include('pages/details/parts/table_view.html.twig') }}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+
+    </script>
+{% endblock %}

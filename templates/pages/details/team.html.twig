@@ -15,12 +15,14 @@
 {% block javascripts %}
     <script>
 
+
+
         const table = document.getElementById('table');
         if (table) {
 //    deleting item
             table.addEventListener('click', e => {
-                if ($(e.target).hasClass('delete-food')) {
-                    // $("#loading").modal("show");
+                if ($(e.target).hasClass('delete-item')) {
+                    $("#loading").modal("show");
                     if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
                         const id = e.target.getAttribute('data-id');
                         const table = e.target.getAttribute('data-table');
@@ -28,7 +30,7 @@
                             method: 'DELETE'
                         }).then(res => window.location.reload());
                     }
-                    // $("#loading").modal("hide");
+                    $("#loading").modal("hide");
                 }
             })
         }

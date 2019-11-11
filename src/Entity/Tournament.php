@@ -53,6 +53,11 @@ class Tournament
      */
     private $games;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $plays_in_game;
+
     public function __construct()
     {
         $this->teams = new ArrayCollection();
@@ -132,6 +137,15 @@ class Tournament
         return $this->teams;
     }
 
+    /**
+     * @return array
+     */
+    public function getShuffledTeams(): array {
+        $array_teams = iterator_to_array($this->teams);
+        shuffle($array_teams);
+        return $array_teams;
+    }
+
     public function addTeam(Team $team): self
     {
         if (!$this->teams->contains($team)) {
@@ -177,6 +191,18 @@ class Tournament
                 $game->setTournament(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPlaysInGame(): ?int
+    {
+        return $this->plays_in_game;
+    }
+
+    public function setPlaysInGame(int $plays_in_game): self
+    {
+        $this->plays_in_game = $plays_in_game;
 
         return $this;
     }

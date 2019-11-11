@@ -29,11 +29,6 @@ class Game
     private $team2;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $field;
-
-    /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private $points_team1;
@@ -48,6 +43,11 @@ class Game
      * @ORM\JoinColumn(nullable=false)
      */
     private $tournament;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $round;
 
     public function getId(): ?int
     {
@@ -74,18 +74,6 @@ class Game
     public function setTeam2(?Team $team2): self
     {
         $this->team2 = $team2;
-
-        return $this;
-    }
-
-    public function getField(): ?int
-    {
-        return $this->field;
-    }
-
-    public function setField(int $field): self
-    {
-        $this->field = $field;
 
         return $this;
     }
@@ -122,6 +110,18 @@ class Game
     public function setTournament(?Tournament $tournament): self
     {
         $this->tournament = $tournament;
+
+        return $this;
+    }
+
+    public function getRound(): ?int
+    {
+        return $this->round;
+    }
+
+    public function setRound(int $round): self
+    {
+        $this->round = $round;
 
         return $this;
     }

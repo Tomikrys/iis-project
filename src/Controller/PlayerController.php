@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 use App\Entity\Player;
+use App\Entity\Team;
 use App\Repository\PlayerRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -81,8 +82,7 @@ class PlayerController extends AbstractController {
     }
 
     /**
-     * @Route("/players/edit/{id}")
-     * @Method({"GET", "POST"})
+     * @Route("/players/edit/{id}", methods={"GET", "POST"})
      */
     public function edit(Request $request, $id) {
         $title = "Editace hráče";
@@ -101,8 +101,67 @@ class PlayerController extends AbstractController {
     }
 
     /**
-     * @Route("/players", name="/players")
+     * @Route("/players/detail/{id}")
      * @Method({"GET", "POST"})
+     */
+    public function show(Request $request, $id)
+    {
+        $player = $this->getDoctrine()->getRepository(Player::class)->find($id);
+        $title = "Detail hráče '" . $player->getName() . "'";
+
+        $table['name'] = "teams";
+        $table['headers'] = array("Název");
+        $table['rows'] = array();
+
+        // naplnění struktury pro výpis tabulky
+        $teams = $player->getTeams();
+        $team = null;
+        foreach($teams as $team){
+            $row['id'] = $team->getId();
+            $row['data'] = array($team->getName());
+            array_push($table['rows'], $row);
+        }
+
+        $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+        foreach ($all_teams as $team) {
+            // slouží k výpisu jen hráču, co ještě nejsou v týmu
+            if (!$teams->contains($team)) {
+                $form_teams[$team->getName()] = $team->getId();
+            }
+        }
+
+        $add_team = new Team();
+        // Dělám tady trochu bordel, sry, do name si uložím ID toho hráča, protože nemám setID, tak to dělám přes setName
+        // Dole to pak použiju k vyhledání toho hráča, co se má uložit
+        $formadd = $this->createFormBuilder($add_team)
+            ->add('name', ChoiceType::class, array(
+                'choices'  => $form_teams,
+                'attr' => array('class' => 'custom-select'),
+                'label' => 'Dostupné týmy' ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Uložit',
+                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')) )
+            ->getForm();
+
+        // Zpracování add formuláře.
+        $formadd->handleRequest($request);
+        if ($formadd->isSubmitted() && $formadd->isValid()) {
+            // sic je tady getName, tak do name jsem výše uložil ID toho hráča, takže se hledá podle ID, sorry.
+            $team = $this->getDoctrine()->getRepository(Team::class)->find($add_team->getName());
+            $player->addTeam($team);
+            $this->getDoctrine()->getManager()->persist($player);
+            $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně  do turnaje \'' . $team->getName() . '\'.');
+            return $this->redirect($request->getUri());
+        }
+
+        return $this->render('pages/details/player.html.twig', array('title' => $title, 'player' => $player,
+            'table' => $table, 'formadd' => $formadd->createView()));
+    }
+
+
+    /**
+     * @Route("/players", name="/players", methods={"GET", "POST"})
      */
     public function index(Request $request) {
         // promněnné pro výpis
@@ -116,7 +175,7 @@ class PlayerController extends AbstractController {
         $player = null;
         foreach($players as $player){
             $row['id'] = $player->getId();
-            $row['link'] = false;
+            $row['link'] = true;
             $row['data'] = array($player->getName(), $player->getGender(), $player->getPhone(), $player->getEmail());
             array_push($table['rows'], $row);
         }

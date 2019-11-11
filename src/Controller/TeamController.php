@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TeamController extends AbstractController
@@ -52,8 +53,24 @@ class TeamController extends AbstractController
     }
 
     /**
-     * @Route("/teams/edit/{id}")
-     * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param $id
+     * @Route("/teams/delete/{id}", methods={"DELETE"})
+     */
+    public function delete(Request $request, $id) {
+        $team = $this->getDoctrine()->getRepository(Player::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($team);
+        $entityManager->flush();
+        // vytvoření flash oznámení
+        $this->addFlash('warning', 'Tým \'' . $team->getName() . '\' byl odstraněn.');
+        $response = new Response();
+        $response->send();
+    }
+
+
+    /**
+     * @Route("/teams/edit/{id}", methods={"GET", "POST"})
      */
     public function edit(Request $request, $id)
     {
@@ -73,8 +90,7 @@ class TeamController extends AbstractController
     }
 
     /**
-     * @Route("/teams/detail/{id}")
-     * @Method({"GET", "POST"})
+     * @Route("/teams/detail/{id}", methods={"GET", "POST"})
      */
     public function show(Request $request, $id)
     {
@@ -96,6 +112,7 @@ class TeamController extends AbstractController
         }
 
         $all_players = $this->getDoctrine()->getRepository(Player::class)->findAll();
+        $form_players = null;
         foreach ($all_players as $player) {
             // slouží k výpisu jen hráču, co ještě nejsou v týmu
             if (!$players->contains($player)) {
@@ -133,8 +150,7 @@ class TeamController extends AbstractController
     }
 
     /**
-     * @Route("/teams", name="/teams")
-     * @Method({"GET", "POST"})
+     * @Route("/teams", name="/teams", methods={"GET", "POST"})
      */
     public function index(Request $request)
     {
@@ -151,7 +167,7 @@ class TeamController extends AbstractController
             $row['id'] = $team->getId();
             $row['data'] = array($team->getName());
             $row['link'] = true;
-            array_push($table['rows'], $row);
+            array_push($table['rows'], $row); 
         }
 
 
