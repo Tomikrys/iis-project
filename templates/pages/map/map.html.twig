@@ -4,8 +4,20 @@
 {% block body %}
     <h1>Pavouk pro turnaj: {{ tournament.name }}</h1>
     <div id="map">
+{#            coutery pro tabindex#}
+            {% set gamescounter = 0 %}
+            {% set counter = 1 %}
+
+            {% set round = 1 %}
+
         <div class="col">
             {% for game in games %}
+                {% set gamescounter = gamescounter + counter %}
+                {% if round != game.round %}
+                    </div>
+                    <div class="col">
+                    {% set round = game.round %}
+                {% endif %}
                 <div class="row">
                     <div class="card border-primary mb-3" style="max-width: 20rem;">
                         <div class="card-header p-1 pl-3 pr-3"><span class="h3">{{ game.team1.name }}</span> <span class="h5">vs</span> <span class="h3">{{ game.team2.name }}</span></div>
@@ -13,18 +25,22 @@
                             <table class="table table-hover table-sm table-bordered mb-0">
                                 <tr>
                                     <td>{{ game.team1.name }}</td>
+                                    {% set counter = gamescounter %}
                                     {% for i in 1..tournament.PlaysInGame %}
-                                        <td class="team1_points" contenteditable="true">{{ game.PointsTeam1[i-1] }}</td>
+                                        <td class="team1_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam1[i-1] }}</td>
+                                        {% set counter = counter + 1 %}
                                     {% endfor %}
                                 </tr>
                                 <tr class="team1_poins">
                                     <td>{{ game.team2.name }}</td>
+                                    {% set counter = gamescounter %}
                                     {% for i in 1..tournament.PlaysInGame %}
-                                        <td class="team2_points" contenteditable="true">{{ game.PointsTeam2[i-1] }}</td>
+                                        <td class="team2_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam2[i-1] }}</td>
+                                        {% set counter = counter + 1 %}
                                     {% endfor %}
                                 </tr>
                             </table>
-                            <a href="#" data-id="{{ game.id }}" class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
+                            <a href="#" data-id="{{ game.id }}" tabindex={{ counter }} class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
                                 Uložit stav
                             </a>
                         </div>
@@ -32,7 +48,6 @@
                 </div>
             {% endfor %}
         </div>
-    </div>
 {% endblock %}
 
 {% block javascripts %}

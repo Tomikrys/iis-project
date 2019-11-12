@@ -71,7 +71,8 @@ class MapController extends TournamentController {
      */
     public function map(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
-        $games = $tournament->getGames();
+        $games = iterator_to_array($tournament->getGames());
+        usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
 
         return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games));
     }
