@@ -22,24 +22,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MapController extends TournamentController {
 
-    /**
-     * @Route("/tournaments/detail/{id}/generate", name="generate", methods={"GET", "POST"})
-     */
-    public function generate(Request $request, $id) {
-        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
-        $games = $tournament->getGames();
-        $entityManager = $this->getDoctrine()->getManager();
-        // odstranění případných her co by dělaly binec
-        if ($games != []) {
-            foreach ($games as $game) {
-                $entityManager->remove($game);
-                $entityManager->flush();
-            }
-        }
-
-        $i = 0;
-        $game = null;
+    public function make_first ($tournament) {
         $teams = $tournament->getShuffledTeams();
+        $entityManager = $this->getDoctrine()->getManager();
+        // pole přidaných her
+        $game = null;
+        $games = [];
+        $i = 0;
         foreach ($teams as $team) {
             if ($i % 2 ==  0) {
                 $game = new Game();
@@ -58,9 +47,62 @@ class MapController extends TournamentController {
 
                 $entityManager->persist($game);
                 $entityManager->flush();
+
+                // nevím proč, ale nemůžu si to vythánout pomocí $tournament->getGames() :(
+                array_push($games, $game);
             }
             $i++;
         }
+        return $games;
+    }
+
+    public function make_rest($tournament, $games, $lvl = 2){
+        $entityManager = $this->getDoctrine()->getManager();
+        $next_games = [];
+        $i = 0;
+        foreach ($games as $game) {
+            $i++;
+            if ($game->getRound() == $lvl-1) {
+                if ($i % 2 == 0) {
+                    $game = new Game();
+                    $game->setTournament($tournament);
+                    $game->setRound($lvl);
+                    $array = [];
+                    for ($j = 1; $j <= $tournament->getPlaysInGame(); $j++) {
+                        array_push($array, " ");
+                    }
+                    $game->setPointsTeam1($array);
+                    $game->setPointsTeam2($array);
+
+                    $entityManager->persist($game);
+                    $entityManager->flush();
+                    array_push($next_games, $game);
+                }
+            }
+        }
+        if ($i >= 2) {
+            $this->make_rest($tournament, $next_games, $lvl+1);
+        }
+    }
+
+    /**
+     * @Route("/tournaments/detail/{id}/generate", name="generate", methods={"GET", "POST"})
+     */
+    public function generate(Request $request, $id) {
+        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        $games = $tournament->getGames();
+        $entityManager = $this->getDoctrine()->getManager();
+        // odstranění případných her co by dělaly binec
+        if ($games != []) {
+            foreach ($games as $game) {
+                $entityManager->remove($game);
+                $entityManager->flush();
+            }
+        }
+
+        $games = $this->make_first($tournament);
+        $this->make_rest($tournament, $games);
+
         $response = new Response();
         $response->send();
         return $response;

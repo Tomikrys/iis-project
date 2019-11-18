@@ -1,53 +1,155 @@
 {% extends 'base.html.twig' %}
 {% block title %}{{ tournament.name }}{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        /*#map > .row > .col {*/
+        /*    display: inline-block;*/
+        /*    float: none;*/
+        /*}*/
+
+        /*#map > .row {*/
+        /*    overflow-x: auto;*/
+        /*    white-space: nowrap;*/
+        /*}*/
+
+        .container {
+            max-width: 98%;
+        }
+
+        /*.not_first .row + .row{*/
+        /*    padding-top: 70px;*/
+        /*}*/
+        /*#map {*/
+        /*    display: table;*/
+        /*}*/
+
+        /*.col {*/
+        /*    border: red solid;*/
+        /*    float: none;*/
+        /*    display: table-cell;*/
+        /*}*/
+
+        .card {
+            width: fit-content;
+        }
+        /*.row {*/
+        /*    border: green solid;*/
+        /*}*/
+        /*.col {*/
+        /*        border: red solid;*/
+        /*}*/
+    </style>
+{% endblock %}
 {% block body %}
     <h1>Pavouk pro turnaj: {{ tournament.name }}</h1>
-    <div id="map">
-{#            coutery pro tabindex#}
-            {% set gamescounter = 0 %}
-            {% set counter = 1 %}
 
-            {% set round = 1 %}
+<div id="map" class="flex-nowrap align-items-center">
+    <!--coutery pro tabindex -->
+    {% set gamescounter = 0 %}
+    {% set counter = 1 %}
 
-        <div class="col">
-            {% for game in games %}
-                {% set gamescounter = gamescounter + counter %}
-                {% if round != game.round %}
-                    </div>
-                    <div class="col">
-                    {% set round = game.round %}
-                {% endif %}
-                <div class="row">
-                    <div class="card border-primary mb-3" style="max-width: 20rem;">
-                        <div class="card-header p-1 pl-3 pr-3"><span class="h3">{{ game.team1.name }}</span> <span class="h5">vs</span> <span class="h3">{{ game.team2.name }}</span></div>
-                        <div class="card-body p-1">
-                            <table class="table table-hover table-sm table-bordered mb-0">
-                                <tr>
-                                    <td>{{ game.team1.name }}</td>
-                                    {% set counter = gamescounter %}
-                                    {% for i in 1..tournament.PlaysInGame %}
-                                        <td class="team1_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam1[i-1] }}</td>
-                                        {% set counter = counter + 1 %}
-                                    {% endfor %}
-                                </tr>
-                                <tr class="team1_poins">
-                                    <td>{{ game.team2.name }}</td>
-                                    {% set counter = gamescounter %}
-                                    {% for i in 1..tournament.PlaysInGame %}
-                                        <td class="team2_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam2[i-1] }}</td>
-                                        {% set counter = counter + 1 %}
-                                    {% endfor %}
-                                </tr>
-                            </table>
-                            <a href="#" data-id="{{ game.id }}" tabindex={{ counter }} class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
-                                Uložit stav
-                            </a>
-                        </div>
-                    </div>
+    {% set round = 1 %}
+
+    <div class="row">
+        <h3>{{ round }}. kolo</h3>
+    </div>
+    <div class="row">
+        {% for game in games %}
+        {% set gamescounter = gamescounter + counter %}
+        {% if round != game.round %}
+    </div>
+    <div class="row">
+        <h3>{{ round + 1 }}. kolo</h3>
+    </div>
+    <div class="row">
+        {% set round = game.round %}
+        {% endif %}
+        <!--  <div class="row align-content-center" style="margin-top: {{ round * 90 }}px;"> -->
+        <div class="col align-content-center">
+            <div class="card card-block mx-auto border-primary mb-2 mt-2">
+                <div class="card-header p-1 pl-3 pr-3">
+                    <span class="h3">{{ game.team1.name | default("???") }}</span>
+                    <span class="h5">vs</span>
+                    <span class="h3">{{ game.team2.name | default("???") }}</span>
                 </div>
-            {% endfor %}
+                <div class="card-body p-1">
+                    <table class="table table-hover table-sm table-bordered mb-0">
+                        <tr>
+                            <td>{{ game.team1.name | default("???") }}</td>
+                            {% set counter = gamescounter %}
+                            {% for i in 1..tournament.PlaysInGame %}
+                                <td class="team1_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam1[i-1] }}</td>
+                                {% set counter = counter + 1 %}
+                            {% endfor %}
+                        </tr>
+                        <tr class="team1_poins">
+                            <td>{{ game.team2.name | default("???") }}</td>
+                            {% set counter = gamescounter %}
+                            {% for i in 1..tournament.PlaysInGame %}
+                                <td class="team2_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam2[i-1] }}</td>
+                                {% set counter = counter + 1 %}
+                            {% endfor %}
+                        </tr>
+                    </table>
+                    <a href="#" data-id="{{ game.id }}" tabindex={{ counter }} class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
+                    Uložit stav
+                    </a>
+                </div>
+            </div>
         </div>
+        {% endfor %}
+    </div>
+
+
+{#    <div id="map" class="row live__scroll flex-nowrap align-items-center">#}
+{#        <!--coutery pro tabindex -->#}
+{#            {% set gamescounter = 0 %}#}
+{#            {% set counter = 1 %}#}
+
+{#            {% set round = 1 %}#}
+
+{#        <div class="col">#}
+{#            <h3>{{ round }}. kolo</h3>#}
+{#            {% for game in games %}#}
+{#                {% set gamescounter = gamescounter + counter %}#}
+{#                {% if round != game.round %}#}
+{#                    </div>#}
+{#                    <div class="col not_first">#}
+{#                        <h3>{{ round + 1 }}. kolo</h3>#}
+{#                    {% set round = game.round %}#}
+{#                {% endif %}#}
+{#           <!--  <div class="row align-content-center" style="margin-top: {{ round * 90 }}px;"> -->#}
+{#                  <div class="row align-content-center">#}
+{#                    <div class="card card-block mx-auto border-primary mb-2 mt-2">#}
+{#                        <div class="card-header p-1 pl-3 pr-3"><span class="h3">{{ game.team1.name }}</span> <span class="h5">vs</span> <span class="h3">{{ game.team2.name }}</span></div>#}
+{#                        <div class="card-body p-1">#}
+{#                            <table class="table table-hover table-sm table-bordered mb-0">#}
+{#                                <tr>#}
+{#                                    <td>{{ game.team1.name }}</td>#}
+{#                                    {% set counter = gamescounter %}#}
+{#                                    {% for i in 1..tournament.PlaysInGame %}#}
+{#                                        <td class="team1_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam1[i-1] }}</td>#}
+{#                                        {% set counter = counter + 1 %}#}
+{#                                    {% endfor %}#}
+{#                                </tr>#}
+{#                                <tr class="team1_poins">#}
+{#                                    <td>{{ game.team2.name }}</td>#}
+{#                                    {% set counter = gamescounter %}#}
+{#                                    {% for i in 1..tournament.PlaysInGame %}#}
+{#                                        <td class="team2_points" contenteditable="true" tabindex={{ counter }}>{{ game.PointsTeam2[i-1] }}</td>#}
+{#                                        {% set counter = counter + 1 %}#}
+{#                                    {% endfor %}#}
+{#                                </tr>#}
+{#                            </table>#}
+{#                            <a href="#" data-id="{{ game.id }}" tabindex={{ counter }} class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">#}
+{#                                Uložit stav#}
+{#                            </a>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
 {% endblock %}
 
 {% block javascripts %}

@@ -176,7 +176,7 @@ class TournamentController extends AbstractController
             $tournament->addTeam($team);
             $this->getDoctrine()->getManager()->persist($tournament);
             $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně  do turnaje \'' . $team->getName() . '\'.');
+            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně  do turnaje \'' . $tournament->getName() . '\'.');
             return $this->redirect($request->getUri());
         }
 
