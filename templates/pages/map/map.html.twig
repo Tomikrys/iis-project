@@ -92,7 +92,9 @@
                             {% endfor %}
                         </tr>
                     </table>
-                    <a href="#" data-id="{{ game.id }}" tabindex={{ counter }} class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
+                    <a href="#" data-id="{{ game.id }}" data-team1id="{{ game.team1.id | default("")}}"
+                       data-team2id="{{ game.team2.id | default("") }}" tabindex={{ counter }}
+                       class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
                     Uložit stav
                     </a>
                 </div>
@@ -170,9 +172,13 @@
                         score = team2_score[i].innerText;
                         team2_score_array.push(score);
                     }
+                    const team1id = e.target.getAttribute('data-team1id');
+                    const team2id = e.target.getAttribute('data-team2id');
                     const teams_score_json = {
                         team1: team1_score_array,
+                        team1ID: team1id,
                         team2: team2_score_array,
+                        team2ID: team2id,
                     };
                     fetch(`/game/update_score/${id}`, {
                         method: 'PATCH',

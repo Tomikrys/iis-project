@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -47,6 +49,17 @@ class Game
      */
     private $points_team2 = [];
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $FirstInNextGame;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\game")
+     */
+    private $NextGame;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,6 +77,16 @@ class Game
         return $this;
     }
 
+    public function setTeam1ById ($id) {
+        $teams =  $this->getTournament()->getTeams();
+        foreach ($teams as $team) {
+            if ($team->getId() == $id) {
+                break;
+            }
+        }
+        $this->setTeam1($team);
+    }
+
     public function getTeam2(): ?Team
     {
         return $this->team2;
@@ -74,6 +97,16 @@ class Game
         $this->team2 = $team2;
 
         return $this;
+    }
+
+    public function setTeam2ById ($id) {
+        $teams =  $this->getTournament()->getTeams();
+        foreach ($teams as $team) {
+            if ($team->getId() == $id) {
+                break;
+            }
+        }
+        $this->setTeam2($team);
     }
 
     public function getTournament(): ?Tournament
@@ -123,4 +156,29 @@ class Game
 
         return $this;
     }
+
+    public function getFirstInNextGame(): ?bool
+    {
+        return $this->FirstInNextGame;
+    }
+
+    public function setFirstInNextGame(?bool $FirstInNextGame): self
+    {
+        $this->FirstInNextGame = $FirstInNextGame;
+
+        return $this;
+    }
+
+    public function getNextGame(): ?game
+    {
+        return $this->NextGame;
+    }
+
+    public function setNextGame(?game $NextGame): self
+    {
+        $this->NextGame = $NextGame;
+
+        return $this;
+    }
+
 }

@@ -36,8 +36,9 @@
             try {
                 const response = fetch(url, {
                     method: 'POST'
-                });
+                //});
                 //}).then(res => window.location.reload());
+                }).then($("#loading").modal("hide"));
                 console.log('Success');
             } catch (error) {
                 console.error('Error:', error);

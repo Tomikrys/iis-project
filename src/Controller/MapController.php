@@ -60,25 +60,32 @@ class MapController extends TournamentController {
         $entityManager = $this->getDoctrine()->getManager();
         $next_games = [];
         $i = 0;
+        $newGame = null;
         foreach ($games as $game) {
-            $i++;
             if ($game->getRound() == $lvl-1) {
                 if ($i % 2 == 0) {
-                    $game = new Game();
-                    $game->setTournament($tournament);
-                    $game->setRound($lvl);
+                    $newGame = new Game();
+                    $newGame->setTournament($tournament);
+                    $newGame->setRound($lvl);
+                    $game->setNextGame($newGame);
+                    $game->setFirstInNextGame(true);
                     $array = [];
                     for ($j = 1; $j <= $tournament->getPlaysInGame(); $j++) {
                         array_push($array, " ");
                     }
-                    $game->setPointsTeam1($array);
-                    $game->setPointsTeam2($array);
+                    $newGame->setPointsTeam1($array);
+                    $newGame->setPointsTeam2($array);
 
-                    $entityManager->persist($game);
+                    $entityManager->persist($newGame);
                     $entityManager->flush();
-                    array_push($next_games, $game);
+                    array_push($next_games, $newGame);
+                } else {
+                    $game->setNextGame($newGame);
+                    $game->setFirstInNextGame(false);
                 }
+                dump($game);
             }
+            $i++;
         }
         if ($i >= 2) {
             $this->make_rest($tournament, $next_games, $lvl+1);
