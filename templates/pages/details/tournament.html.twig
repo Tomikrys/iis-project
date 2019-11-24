@@ -6,7 +6,9 @@
 
     <h2>Pavouk</h2>
     <a href="/tournaments/detail/{{ tournament.id }}/map" class="btn btn-success">Zobrazit pavouka</a>
+    {% if is_granted('ROLE_ADMIN') %}
     <button onclick="generate_games({{ tournament.id }})" class="btn btn-danger">Generovat pavouka</button>
+    {% endif %}
 
     <h2>Datum</h2>
     <p>{{ tournament_date }}</p>
@@ -23,7 +25,9 @@
     <h2>Týmy v turnaji:</h2>
     {{ include('pages/details/parts/table_view.html.twig') }}
 
+    {% if is_granted('ROLE_CAPTAIN') %}
     {{ include('pages/details/parts/add_form_modal.html.twig') }}
+    {% endif %}
     {#    {{ include('pages/tables/parts/edit_form_modal.html.twig') }}#}
 {% endblock %}
 

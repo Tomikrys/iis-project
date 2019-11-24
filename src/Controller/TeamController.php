@@ -76,6 +76,14 @@ class TeamController extends AbstractController
     {
         $title = "Editace týmu";
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        if (!($team)) {
+            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
+            return $this->redirect("/teams");
+        }
+        if (!($this->getUser()->getEmail() == $team->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN"))) {
+            $this->addFlash('error', 'Tým \'' . $team->getName() . '\' nemáte oprávnění upravovat.');
+            return $this->redirect("/teams");
+        }
         $formedit = $this->make_form($team);
 
         // Zpracování add formuláře.
@@ -157,7 +165,7 @@ class TeamController extends AbstractController
         // promněnné pro výpis
         $table_name = "Tabulka týmů";
         $table['name'] = "teams";
-        $table['headers'] = array("Název");
+        $table['headers'] = array("Název", "Počet hráčů");
         $table['rows'] = array();
 
         // naplnění struktury pro výpis tabulky
@@ -165,8 +173,11 @@ class TeamController extends AbstractController
         $team = null;
         foreach ($teams as $team) {
             $row['id'] = $team->getId();
-            $row['data'] = array($team->getName());
+            $row['data'] = array($team->getName(), $team->getPlayersCount());
             $row['link'] = true;
+            $row['name'] = $team->getName();
+            $row['playersCount'] = $team->getPlayersCount();
+            $row["admin"] = $team->getAdminString();
             array_push($table['rows'], $row); 
         }
 
@@ -177,11 +188,12 @@ class TeamController extends AbstractController
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
         if ($formadd->isSubmitted() && $formadd->isValid()) {
+            $new_team->setAdmin($this->getUser());
             $this->teamRepository->save($new_team);
             $this->addFlash('success', 'Tým \'' . $new_team->getName() . '\' byl úspěšně přidán.');
             return $this->redirect($request->getUri());
         }
 
-        return $this->render('pages/tables/index.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
+        return $this->render('pages/tables/pages/teams.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
     }
 }

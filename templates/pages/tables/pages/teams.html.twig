@@ -1,0 +1,7 @@
+{% extends 'pages/tables/index.html.twig' %}
+{% block content %}
+    {{ include('pages/tables/pages/teams_cards_view.html.twig') }}
+    {% if is_granted('ROLE_ADMIN') %}
+        {{ include('pages/tables/parts/table_view.html.twig') }}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+<div class="row">
+    {% for row in table.rows %}
+        <div class="p-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="card">
+                <h3 class="card-header"><a href="/{{ table.name }}/detail/{{ row.id }}">{{ row.name }}</a></h3>
+                <ul class="m-0 p-0">
+                    <li class="list-group-item">Datum: {{ row.date }}</li>
+                    <li class="list-group-item">Cena: {{ row.price }}</li>
+                    <li class="list-group-item">Počet setů na hru: {{ row.plays_in_game }}</li>
+                    <li class="list-group-item border-bottom border-primary">Maximální počet týmů: {{ row.max_teams_count }}</li>
+                </ul>
+                <div class="card-body">
+                    <a href="/tournaments/detail/{{ row.id }}/map" class="btn btn-success">Zobrazit pavouka</a>
+                </div>
+                {% if is_granted('ROLE_ADMIN') or (app.user is not null and row.admin == app.user.email) %}
+                <div class="card-footer text-muted">
+                    <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-warning edit-item">Upravit</a>
+                    {#                        <button type="button" class="btn btn-warning edit-item" data-toggle="modal" data-id="{{ row.id }}" data-target="#editFormModal">Upravit</button>#}
+                    <a href="#" class="btn btn-danger delete-item" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% if is_granted('ROLE_CAPTAIN') %}
+<button type="button" class="btn btn-success mb-5" data-toggle="modal" data-target="#addFormModal">Vytvořit turnaj</button>
+{% endif %}

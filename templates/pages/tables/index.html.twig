@@ -3,7 +3,9 @@
 
 {% block body %}
     <h1>{{ table_name }}</h1>
-    {{ include('pages/tables/parts/table_view.html.twig') }}
+
+    {% block content %}
+    {% endblock %}
 
     {{ include('pages/tables/parts/add_form_modal.html.twig') }}
 {#    {{ include('pages/tables/parts/edit_form_modal.html.twig') }}#}
@@ -20,20 +22,22 @@
 
         $('#deleteModal .doAction').click(function () {
             $("#deleteModal").modal("hide");
-            // return true;
+            alert("penis");
+            return true;
         });
-        $('#deleteModal .cancelAction,#deleteModal .fa-close').click(function () {
+        $('#deleteModal .cancelAction, #deleteModal .fa-close').click(function () {
             $("#deleteModal").modal("hide");
-            // return false;
+            return false;
         });
     }
 
-    const table = document.getElementById('table');
-    if (table) {
+
 //    deleting item
-        table.addEventListener('click', e => {
+        document.addEventListener('click', e => {
             if ($(e.target).hasClass('delete-item')) {
                 // TODO opravit modal
+                // TODO Martyho, pomoc"!!!!!D
+                alert(Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit'));
                 if (Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit')) {
                     alert("hello");
                     $("#loading").modal("show");
@@ -45,9 +49,22 @@
                     }).then(res => window.location.reload());
                     $("#loading").modal("hide");
                 }
-                alert("sranda");
+            }
+            if ($(e.target).hasClass('make-admin')) {
+                // TODO opravit modal
+                // TODO Martyho, pomoc"!!!!!D
+                alert(Confirm('Povýšení na admina', 'Opravdu chcete uživatele povýšit?', 'Povýšit', 'Zrušit'));
+                if (Confirm('Povýšení na admina', 'Opravdu chcete uživatele povýšit?', 'Povýšit', 'Zrušit')) {
+                    alert("hello");
+                    $("#loading").modal("show");
+                    const id = e.target.getAttribute('data-id');
+                    fetch(`/users/upgrade/${id}`, {
+                        method: 'PATCH'
+                    }).then(res => window.location.reload());
+                    $("#loading").modal("hide");
+                }
             }
         })
-    }
+
 </script>
 {% endblock %}

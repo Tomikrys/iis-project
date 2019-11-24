@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -32,6 +34,24 @@ class User implements UserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Tournament", mappedBy="admin")
+     */
+    private $tournaments;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Team", mappedBy="admin")
+     */
+    private $teams;
+
+
+
+    public function __construct()
+    {
+        $this->tournaments = new ArrayCollection();
+        $this->teams = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -72,6 +92,37 @@ class User implements UserInterface
         return array_unique($roles);
     }
 
+    /**
+     * @see UserInterface
+     */
+    public function getRolesString(): string
+    {
+        $roles = $this->getRoles();
+        $rolesString = "";
+        $i = 0;
+        foreach ($roles as $role) {
+            if ($i != 0) {
+                $rolesString .= ", ";
+            }
+            $rolesString .= $role;
+            $i++;
+        }
+
+        $rolesString = str_replace("ROLE_", "", $rolesString);
+        return $rolesString;
+    }
+
+
+
+    public function hasRole(string $find): bool {
+        foreach ($this->roles as $role) {
+            if ($role == $find) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
@@ -109,5 +160,67 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection|Tournament[]
+     */
+    public function getTournaments(): Collection
+    {
+        return $this->tournaments;
+    }
+
+    public function addTournament(Tournament $tournament): self
+    {
+        if (!$this->tournaments->contains($tournament)) {
+            $this->tournaments[] = $tournament;
+            $tournament->setAdmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTournament(Tournament $tournament): self
+    {
+        if ($this->tournaments->contains($tournament)) {
+            $this->tournaments->removeElement($tournament);
+            // set the owning side to null (unless already changed)
+            if ($tournament->getAdmin() === $this) {
+                $tournament->setAdmin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Team[]
+     */
+    public function getTeams(): Collection
+    {
+        return $this->teams;
+    }
+
+    public function addTeam(Team $team): self
+    {
+        if (!$this->teams->contains($team)) {
+            $this->teams[] = $team;
+            $team->setAdmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeam(Team $team): self
+    {
+        if ($this->teams->contains($team)) {
+            $this->teams->removeElement($team);
+            // set the owning side to null (unless already changed)
+            if ($team->getAdmin() === $this) {
+                $team->setAdmin(null);
+            }
+        }
+
+        return $this;
     }
 }

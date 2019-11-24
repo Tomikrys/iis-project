@@ -82,6 +82,14 @@ class TournamentController extends AbstractController
      */
     public function delete(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+
+        dump($this->getUser());
+        dump($tournament->getAdminString());
+        if ($this->getUser() != $tournament->getAdminString()) {
+            dump($tournament);
+            exit;
+        }
+        exit;
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($tournament);
         $entityManager->flush();
@@ -98,6 +106,14 @@ class TournamentController extends AbstractController
      */
     public function remove_team(Request $request, $id) {
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        if (!($team)) {
+            $this->addFlash('error', 'Tým s id \'' . $id . '\' neexistuje.');
+            return $this->redirect("/tournaments");
+        }
+        if ($this->getUser()->getEmail() != $this->getAdminString()) {
+            $this->addFlash('error', 'Turnaj \'' . $this->getName() . '\' nemůžete upravovat.');
+            return $this->redirect("/tournaments");
+        }
         $this->removeTeam($team);
     }
 
@@ -108,6 +124,14 @@ class TournamentController extends AbstractController
     public function edit(Request $request, $id) {
         $title = "Editace turnaje";
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        if (!($tournament)) {
+            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
+            return $this->redirect("/tournaments");
+        }
+        if (!($this->getUser()->getEmail() == $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN"))) {
+            $this->addFlash('error', 'Turnaj \'' . $tournament->getName() . '\' nemáte oprávnění upravovat.');
+            return $this->redirect("/tournaments");
+        }
         $formedit = $this->make_form($tournament);
 
         // Zpracování add formuláře.
@@ -192,19 +216,26 @@ class TournamentController extends AbstractController
         // promněnné pro výpis
         $table_name = "Tabulka turnajů";
         $table['name'] = "tournaments";
-        $table['headers'] = array("Název", "Datum", "Cena", "Počer her na set", "Maximální počet týmů");
+        $table['headers'] = array("Název", "Datum", "Cena", "Organizátor", "Počer her na set", "Maximální počet týmů");
         $table['rows'] = array();
 
         // naplnění struktury pro výpis tabulky
         $tournaments = $this->getDoctrine()->getRepository(Tournament::class)->findAll();
         $tournament = null;
         foreach ($tournaments as $tournament) {
-            $row['id'] = $tournament->getId();
-            $row['data'] = array($tournament->getName(), $tournament->getDate()->format('d. m. Y'), $tournament->getPrice(), $tournament->getPlaysInGame(), $tournament->getMaxTeamsCount());
+            $row['data'] = array($tournament->getName(), $tournament->getDate()->format('d. m. Y'), $tournament->getPrice(), $tournament->getAdminString(), $tournament->getPlaysInGame(), $tournament->getMaxTeamsCount());
             $row['link'] = true;
+
+            $row['id'] = $tournament->getId();
+            $row["name"] = $tournament->getName();
+            $row["date"] = $tournament->getDate()->format('d. m. Y');
+            $row["price"] = $tournament->getPrice();
+            $row["plays_in_game"] = $tournament->getPlaysInGame();
+            $row["max_teams_count"] = $tournament->getMaxTeamsCount();
+            $row["admin"] = $tournament->getAdminString();
+
             array_push($table['rows'], $row);
         }
-
 
         $new_tournament = new Tournament();
         $formadd = $this->make_form($new_tournament);
@@ -212,11 +243,12 @@ class TournamentController extends AbstractController
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
         if ($formadd->isSubmitted() && $formadd->isValid()) {
+            $new_tournament->setAdmin($this->getUser());
             $this->tournamentRepository->save($new_tournament);
             $this->addFlash('success', 'Turnaj \'' . $new_tournament->getName() . '\' byl úspěšně přidán.');
             return $this->redirect($request->getUri());
         }
 
-        return $this->render('pages/tables/index.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
+        return $this->render('pages/tables/pages/tournaments.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
     }
 }

@@ -4,9 +4,11 @@
         {% for header in table.headers %}
             <th>{{ header }}</th>
         {% endfor %}
+        {% if is_granted('ROLE_ADMIN') %}
         <th>
             Úpravy
         </th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
@@ -21,11 +23,20 @@
                     <td>{{ data }}</td>
                 {% endfor %}
             {% endif %}
+            {% if is_granted('ROLE_ADMIN') %}
             <td>
-                <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-warning edit-item">Upravit</a>
-                {#                        <button type="button" class="btn btn-warning edit-item" data-toggle="modal" data-id="{{ row.id }}" data-target="#editFormModal">Upravit</button>#}
-                <a href="#" class="btn btn-danger delete-item" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+{#                dopnění pro tabulku uživatelů#}
+                {% if userUpgrade is defined %}
+                    {% if row.isAdmin == false %}
+                    <a href="#" class="btn btn-sm btn-warning make-admin" data-id="{{ row.id }}">Povýšit na admina</a>
+                    {% endif %}
+                {% else %}
+                <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-sm btn-warning edit-item">Upravit</a>
+                {# <button type="button" class="btn btn-warning edit-item" data-toggle="modal" data-id="{{ row.id }}" data-target="#editFormModal">Upravit</button>#}
+                <a href="#" class="btn btn-sm btn-danger delete-item" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+                {% endif %}
             </td>
+            {% endif %}
         </tr>
     {% endfor %}
     </tbody>

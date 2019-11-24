@@ -33,6 +33,11 @@ class Team
      */
     private $tournaments;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="teams")
+     */
+    private $admin;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
@@ -62,6 +67,10 @@ class Team
     public function getPlayers(): Collection
     {
         return $this->players;
+    }
+
+    function getPlayersCount(): int {
+        return count($this->players);
     }
 
     public function addPlayer(Player $player): self
@@ -106,6 +115,25 @@ class Team
             $this->tournaments->removeElement($tournament);
             $tournament->removeTeam($this);
         }
+
+        return $this;
+    }
+
+    public function getAdmin(): ?User
+    {
+        return $this->admin;
+    }
+    public function getAdminString(): ?string {
+        if ($this->admin) {
+            return $this->admin->getEmail();
+        } else {
+            return "";
+        }
+    }
+
+    public function setAdmin(?User $admin): self
+    {
+        $this->admin = $admin;
 
         return $this;
     }

@@ -58,10 +58,17 @@ class Tournament
      */
     private $plays_in_game;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="tournaments")
+     */
+    private $admin;
+
+
     public function __construct()
     {
         $this->teams = new ArrayCollection();
         $this->games = new ArrayCollection();
+        $this->admin = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -206,4 +213,25 @@ class Tournament
 
         return $this;
     }
+
+    public function getAdmin(): ?User
+    {
+        return $this->admin;
+    }
+
+    public function getAdminString(): ?string {
+        if ($this->admin) {
+            return $this->admin->getEmail();
+        } else {
+            return "";
+        }
+    }
+
+    public function setAdmin(?User $admin): self
+    {
+        $this->admin = $admin;
+
+        return $this;
+    }
+
 }

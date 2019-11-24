@@ -74,7 +74,7 @@
                     <span class="h3">{{ game.team2.name | default("???") }}</span>
                 </div>
                 <div class="card-body p-1">
-                    <table class="table table-hover table-sm table-bordered mb-0">
+                    <table class="table table-sm table-bordered mb-0">
                         <tr>
                             <td>{{ game.team1.name | default("???") }}</td>
                             {% set counter = gamescounter %}
@@ -92,11 +92,13 @@
                             {% endfor %}
                         </tr>
                     </table>
-                    <a href="#" data-id="{{ game.id }}" data-team1id="{{ game.team1.id | default("")}}"
-                       data-team2id="{{ game.team2.id | default("") }}" tabindex={{ counter }}
-                       class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
-                    Uložit stav
-                    </a>
+                    {% if is_granted('ROLE_CAPTAIN') %}
+                        <a href="#" data-id="{{ game.id }}" data-team1id="{{ game.team1.id | default("")}}"
+                           data-team2id="{{ game.team2.id | default("") }}" tabindex={{ counter }}
+                           class="btn btn-success save-score pl-2 pr-2 mt-1 p-0 btn-block align-content-center">
+                        Uložit stav
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

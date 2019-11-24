@@ -87,7 +87,7 @@ class MapController extends TournamentController {
             }
             $i++;
         }
-        if ($i >= 2) {
+        if ($i > 2) {
             $this->make_rest($tournament, $next_games, $lvl+1);
         }
     }
