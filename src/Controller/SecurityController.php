@@ -56,6 +56,24 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
+
+//    TODO neháže to ty flashe, neívm proč
+    /**
+     * @Route("/logout/auto", name="app_logout_auto")
+     */
+    public function autologout() {
+        $this->addFlash('warning', 'Byl jste automaticky odhlášen.');
+        return $this->redirect($this->generateUrl('app_logout'));
+    }
+
+    /**
+     * @Route("/logout/ondemnad", name="app_logout_ondemand")
+     */
+    public function ondemnadlogout() {
+        $this->addFlash('success', 'Byl jste úspěšně odhlášen.');
+        return $this->redirect($this->generateUrl('app_logout'));
+    }
+
     /**
      * @Route("/logout", name="app_logout")
      */
