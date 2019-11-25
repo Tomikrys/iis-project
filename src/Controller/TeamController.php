@@ -16,6 +16,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * Class TeamController
+ * @package App\Controller
+ *
+ * controler pro správu týmu
+ */
 class TeamController extends AbstractController
 {
     /**
@@ -36,6 +42,8 @@ class TeamController extends AbstractController
     /**
      * @param $team
      * @return \Symfony\Component\Form\FormInterface
+     *
+     * funkce k vytvoření formuláře pro přidání a editaci týmu
      */
     public function make_form($team)
     {
@@ -47,7 +55,7 @@ class TeamController extends AbstractController
             ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Uložit',
-                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')))
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')))
             ->getForm();
         return $form;
     }
@@ -56,6 +64,8 @@ class TeamController extends AbstractController
      * @param Request $request
      * @param $id
      * @Route("/teams/delete/{id}", methods={"DELETE"})
+     *
+     * funkce k odstranění týmu z databáze
      */
     public function delete(Request $request, $id) {
         $team = $this->getDoctrine()->getRepository(Player::class)->find($id);
@@ -70,7 +80,12 @@ class TeamController extends AbstractController
 
 
     /**
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @Route("/teams/edit/{id}", methods={"GET", "POST"})
+     *
+     * funkce k editaci týmu
      */
     public function edit(Request $request, $id)
     {
@@ -97,17 +112,28 @@ class TeamController extends AbstractController
         return $this->render('pages/tables/edit.html.twig', array('title' => $title, 'formedit' => $formedit->createView()));
     }
 
+
     /**
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @Route("/teams/detail/{id}", methods={"GET", "POST"})
+     *
+     * funkce k zobrazení detailu hráče
      */
     public function show(Request $request, $id)
     {
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        if (!($team)) {
+            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
+            return $this->redirect("/teams");
+        }
         $title = "Detail týmu '" . $team->getName() . "'";
 
         $table['name'] = "players";
         $table['headers'] = array("Jméno", "Pohlaví", "Telefon", "Email");
         $table['rows'] = array();
+        $admin = $team->getAdminString();
 
         // naplnění struktury pro výpis tabulky
         // TODO změnit na správenj tým
@@ -119,7 +145,8 @@ class TeamController extends AbstractController
             array_push($table['rows'], $row);
         }
 
-        $all_players = $this->getDoctrine()->getRepository(Player::class)->findAll();
+        //$all_players = $this->getDoctrine()->getRepository(Player::class)->findAll();
+        $all_players = $team->getAdmin()->getPlayers();
         $form_players = null;
         foreach ($all_players as $player) {
             // slouží k výpisu jen hráču, co ještě nejsou v týmu
@@ -135,10 +162,11 @@ class TeamController extends AbstractController
             ->add('name', ChoiceType::class, array(
                 'choices'  => $form_players,
                 'attr' => array('class' => 'custom-select'),
+                'placeholder' => " ",
                 'label' => 'Dostupní hráči' ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Uložit',
-                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')) )
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')) )
             ->getForm();
 
         // Zpracování add formuláře.
@@ -154,11 +182,16 @@ class TeamController extends AbstractController
         }
 
         return $this->render('pages/details/team.html.twig', array('title' => $title, 'team' => $team,
-            'table' => $table, 'formadd' => $formadd->createView()));
+            'table' => $table, 'formadd' => $formadd->createView(), 'admin' => $admin));
     }
 
+
     /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @Route("/teams", name="/teams", methods={"GET", "POST"})
+     *
+     * funkce k zobrazení všech hráčů
      */
     public function index(Request $request)
     {

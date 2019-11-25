@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+// controller pro správe jednotlivých her turnaje
 class GameController extends AbstractController {
 
 
@@ -18,6 +19,8 @@ class GameController extends AbstractController {
      * @param Request $request
      * @Route("/game/update_score/{id}", methods={"PATCH"})
      * @return Response
+     *
+     * funkce pro úpravu skóre hry
      */
     public function update_game_score(Request $request, $id) {
         $json = file_get_contents('php://input');
@@ -44,6 +47,12 @@ class GameController extends AbstractController {
         return $response;
     }
 
+    /**
+     * @param $game
+     * @param $data
+     *
+     * funkce pro kontrolu dokončení hry
+     */
     public function check_win ($game, $data) {
         if (!in_array(" ", $data->team1) && !in_array(" ", $data->team2)) {
             $team1_score = 0;

@@ -7,12 +7,13 @@
     <div class="col-md-6">
         <form method="post">
             {% if error %}
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+{#                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>#}
+                <div class="alert alert-danger">Chybné uživatelské jméno nebo heslo.</div>
             {% endif %}
 
             {% if app.user %}
                 <div class="mb-3">
-                    You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+                    Přihlášen uživatel {{ app.user.username }}, <a href="{{ path('app_logout') }}">odhlásit se</a>.
                 </div>
             {% endif %}
 
@@ -37,7 +38,7 @@
                 </div>
             #}
 
-            <button class="mt-2 btn btn-lg btn-primary" type="submit">
+            <button class="mt-2 btn btn-lg btn-primary showloading" type="submit">
                 Přihlásit
             </button>
         </form>

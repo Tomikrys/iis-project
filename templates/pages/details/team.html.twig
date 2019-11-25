@@ -8,6 +8,10 @@
     <h2>Hráči v týmu:</h2>
     {{ include('pages/details/parts/table_view.html.twig') }}
 
+    {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat hráče</button>
+    {% endif %}
+
     {% if is_granted('ROLE_CAPTAIN') %}
     {{ include('pages/details/parts/add_form_modal.html.twig') }}
     {% endif %}
@@ -16,9 +20,6 @@
 
 {% block javascripts %}
     <script>
-
-
-
         const table = document.getElementById('table');
         if (table) {
 //    deleting item

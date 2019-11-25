@@ -1,5 +1,6 @@
 .content {
     flex: 1 0 auto;
+    border-radius: 2px 25px 225px 80px/2px 578px 25px 15px;
 }
 .footer {
     flex-shrink: 0;

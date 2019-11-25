@@ -2,19 +2,21 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    <h1>Detail hráče: {{ player.name }}</h1>
+    <h1>Nastavení uživatele: {{ user.email }}</h1>
+    <h2>Změna hesla</h2>
+    {{ form_start(formeditpassword) }}
+    {{ form_widget(formeditpassword) }}
+    {{ form_end(formeditpassword) }}
 
-    <h2>Pohlaví</h2>
-    <p>{{ player.gender }}</p>
+    <h2>Založené turnaje</h2>
+    {{ include('pages/details/parts/table_view.html.twig', {table: table_tournaments}) }}
 
-    <h2>Telefon</h2>
-    <p>{{ player.phone }}</p>
+    <h2>Založené týmy</h2>
+    {{ include('pages/details/parts/table_view.html.twig', {table: table_teams}) }}
 
-    <h2>Email</h2>
-    <p>{{ player.email }}</p>
+    <h2>Založení uživatelé</h2>
+    {{ include('pages/details/parts/table_view.html.twig', {table: table_players}) }}
 
-    <h2>Týmy do nichž patří</h2>
-    {{ include('pages/details/parts/table_view.html.twig') }}
 
 {% endblock %}
 

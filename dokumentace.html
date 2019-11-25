@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0067)https://www.fit.vutbr.cz/study/courses/IIS/private/projekt/doc.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-2"><style id="stndz-style"></style>
+    
+    <title>Projekt IIS</title>
+    <style type="text/css">
+    	table { border-collapse: collapse; }
+    	td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+    	dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+<!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+     podle použitého editoru -->
+
+<h1>Název zadání (editujte)</h1> <!-- Nahradte názvem svého zadání -->
+
+<dl>
+	<dt>Autoři</dt>
+	<dd>Tomáš Ryšavý <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xautor01@stud.fit.vutbr.cz">xrysav27@stud.fit.vutbr.cz</a> -
+		popis činnosti v týmu
+	</dd>
+	<dd>Martin Muzikář <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xautor02@stud.fit.vutbr.cz">xmuzik06@stud.fit.vutbr.cz</a> -
+		popis činnosti v týmu
+	</dd>
+	<dt>URL aplikace</dt>
+	<dd><a href="http://pavoukovac.herokuapp.com/">http://pavoukovac.herokuapp.com/</a></dd>
+</dl>
+
+<h2>Uživatelé systému pro testování</h2>
+<p>Uveďte prosím existující zástupce <strong>všech rolí uživatelů</strong>.</p>
+<table>
+<tbody><tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+<tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
+<tr><td>prodavac</td><td>prodavac</td><td>Prodavač</td></tr>
+<tr><td>franta</td><td>franta</td><td>Zákazník</td></tr>
+</tbody></table>
+
+<p>(Diagram případů užití není nutné vkládat, pokud IS implementuje role a případy užití definované zadáním.)</p> 
+
+<h2>Implementace</h2>
+<p>Stručná dokumentace k implementaci, která popisuje, které části projektu (např. PHP skripty) implementují jednotlivé případy použití.</p>
+<p>Aplikace umožňuje prohlížení všech turnajů, týmů a jejich detailů všem nepřihlášeným uživatelům. Dá se proklikat i k
+detailu uživatelů, ale seznam všech uživatelů v databázi není přístupný.</p>
+<p>Pokud se uživatel přihlásí, je mu zpřístupněno vytváření týmů a turnajů. Přihlášený uživatel je pokládán za kapitána týmu, takže
+vytvářet hráče, vytvážet týmy, do nichž může přidat svoje hráče, týmy pak může přidávat na turnaje či vytvářet vlastní turnaje a
+přidávat ostatní týmy.</p>
+<p>Aministrátor pak má právo krom upravy všeho co přihlášený uživatel (takže všech turnajů, hráču a týmů všech uživatelů), tak i
+přidávání práv jednotlivým uživatelům.</p>
+
+<h3>Databáze</h3>
+
+Zde vložte grafické schéma relační databáze (tabulek v databázi).
+
+<h2>Instalace</h2>
+
+Stručně popište: 
+<ul>
+	<li>používáme server Heroku a framework Symfony, kde pro instalaci stačí:</li>
+	<ul>
+		<li>nainstalovat aplikaci heroku</li>
+		<li>v adresáři s aplikací vytvořit heroku projekt</li>
+		<li><code>heroku create</code></li>
+		<li>nastavit prostředí na serveru</li>
+		<li><code>heroku config:set APP_ENV=prod</code></li>
+		<li>a pushnout aplikaci na server</li>
+		<li><code>git push heroku master</code></li>
+		<li>poté je třeba vytvořit databázi</li>
+		<li><code>heroku addons:create jawsdb</code></li>
+		<li>získat info pro databázi</li>
+		<li><code>heroku config:get JAWSDB_URL</code></li>
+		<li>a nakonfigurovat proměnnou pomocí infa získaného předchozím příkazem, provázat datavázi s aplikací</li>
+		<li><code>heroku config:set DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DATABASE_NAME</code></li>
+		<li>teď už jenom stačí vytvořit migraci databáze</li>
+		<li><code>heroku run "php bin/console make:migration"</code></li>
+		<li>a přemigrovat, vytvořit databázi z entit</li>
+		<li><code>heroku run "php bin/console doctrine:migrations:migrate"</code></li>
+		<li>aplikace je online a funkční</li>
+	</ul>
+</ul>
+
+<h2>Známé problémy</h2>
+<p>chybí implementace loga jednotlivých týmů</p>
+<p>hráči jsou tvořeni uživateli. Jelikož jednou za rok pořádáme volejbalový turnaj, rozhodli jsme se udělat aplikaci
+	užitečnou a ne jen projekt pro projekt, proto jsem si dovolili upravit zadání a lehce se tímto vychylujeme.</p>
+<p>uživatel se v tunajích nijak neparticipuje, jen nachytá prostředí pro hru</p>
+<p>nelze odstranit hráče, způsobilo by to nekonzistenci databáze, nevyřešili jsme tento problém</p>
+
+<p>Zde popište, které body zadání nejsou implementovány a z jakého důvodu. Např. &#8222;Z časových důvodů nebyla implementována správa uživatelů.&#8221; Pomůžete tím zrychlit hodnocení, když neimplementované funkce nebudeme muset dlouze hledat.</p>
+
+
+
+</body><div id="saka-gui-root" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 2147483647; opacity: 1; pointer-events: none;"><div></div></div></html>

@@ -6,17 +6,19 @@
 
     <div class="collapse navbar-collapse" id="navbarColor01">
             <ul class="navbar-nav mr-auto">
-{#            <li class="nav-item">#}
-{#                <a class="nav-link" href="/players">Hráči</a>#}
-{#            </li>#}
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
             <li class="nav-item">
-                <a class="nav-link" href="/teams">Týmy</a>
+                <a class="nav-link" href="/players">Hráči</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link showloading" href="/teams">Týmy</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/tournaments">Turnaje</a>
+                <a class="nav-link showloading" href="/tournaments">Turnaje</a>
             </li>
             {% if is_granted('ROLE_ADMIN') %}
-            <li class="nav-item">
+            <li class="nav-item showloading">
                 <a class="nav-link" href="/users">Uživatelé</a>
             </li>
             {% endif %}
@@ -28,6 +30,7 @@
                   {{ app.user.email }}
               </button>
               <div class="dropdown-menu dropdown-menu-right">
+                  <a class="dropdown-item" href="/user/{{ app.user.id }}">Upravit profil</a>
                   <a class="dropdown-item" href="/logout/ondemnad">Odlásit se</a>
               </div>
             </div>

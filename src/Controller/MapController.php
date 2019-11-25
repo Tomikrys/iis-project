@@ -20,8 +20,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * Class MapController
+ * @package App\Controller
+ *
+ * kontroler pro správu pavouka
+ */
 class MapController extends TournamentController {
 
+    /**
+     * @param $tournament
+     * @return array
+     *
+     * funkce pro vytvoření prázdného prvotního kola
+     */
     public function make_first ($tournament) {
         $teams = $tournament->getShuffledTeams();
         $entityManager = $this->getDoctrine()->getManager();
@@ -56,6 +68,13 @@ class MapController extends TournamentController {
         return $games;
     }
 
+    /**
+     * @param $tournament
+     * @param $games
+     * @param int $lvl
+     *
+     * funkce pro vytvoření zbytku pavouka
+     */
     public function make_rest($tournament, $games, $lvl = 2){
         $entityManager = $this->getDoctrine()->getManager();
         $next_games = [];
@@ -92,8 +111,14 @@ class MapController extends TournamentController {
         }
     }
 
+
     /**
+     * @param Request $request
+     * @param $id
+     * @return Response
      * @Route("/tournaments/detail/{id}/generate", name="generate", methods={"GET", "POST"})
+     *
+     * funkce pro generování celého pavouka
      */
     public function generate(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
@@ -115,8 +140,14 @@ class MapController extends TournamentController {
         return $response;
     }
 
+
     /**
+     * @param Request $request
+     * @param $id
+     * @return Response
      * @Route("/tournaments/detail/{id}/map", name="map", methods={"GET", "POST"})
+     *
+     * funkce pro zobrazení pavouka
      */
     public function map(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);

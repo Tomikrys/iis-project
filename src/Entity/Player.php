@@ -7,7 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * Class Player
+ * @package App\Entity
  * @ORM\Entity(repositoryClass="App\Repository\PlayerRepository")
+ *
+ * třída všech hráčů
  */
 class Player
 {
@@ -47,6 +51,11 @@ class Player
      * @ORM\ManyToMany(targetEntity="Team", mappedBy="players")
      */
     private $teams;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="players")
+     */
+    private $admin;
 
     public function __construct()
     {
@@ -160,6 +169,26 @@ class Player
             $this->teams->removeElement($team);
             $team->removePlayer($this);
         }
+
+        return $this;
+    }
+
+    public function getAdmin(): ?User
+    {
+        return $this->admin;
+    }
+
+    public function getAdminString(): ?string {
+        if ($this->admin) {
+            return $this->admin->getEmail();
+        } else {
+            return "";
+        }
+    }
+
+    public function setAdmin(?User $admin): self
+    {
+        $this->admin = $admin;
 
         return $this;
     }

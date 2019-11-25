@@ -7,7 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * Class Team
+ * @package App\Entity
  * @ORM\Entity(repositoryClass="App\Repository\TeamRepository")
+ *
+ * třída všech týmů
  */
 class Team
 {

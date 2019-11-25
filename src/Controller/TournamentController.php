@@ -39,6 +39,9 @@ class TournamentController extends AbstractController
     /**
      * @param $team
      * @return \Symfony\Component\Form\FormInterface
+     * @throws \Exception
+     *
+     * funkce pro tvormu formuláře k editaci či přidání turnaje
      */
     public function make_form($team)
     {
@@ -53,6 +56,7 @@ class TournamentController extends AbstractController
                 'widget' => 'choice',
                 'input'  => 'datetime',
                 'format' => 'dd. MM. yyyy',
+                'data' => new \DateTime(),
                 'attr' => array('class' => 'form-control')
             ))
             ->add('price', IntegerType::class, array(
@@ -65,11 +69,12 @@ class TournamentController extends AbstractController
             ))
             ->add('max_teams_count', IntegerType::class, array(
                 'label' => 'Max. počet týmů',
+                'required' => false,
                 'attr' => array('class' => 'form-control')
             ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Uložit',
-                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')
             ))
             ->getForm();
         return $form;
@@ -79,6 +84,8 @@ class TournamentController extends AbstractController
      * @param Request $request
      * @param $id
      * @Route("/tournament/delete/{id}", methods={"DELETE"})
+     *
+     * funkce k odstranění turnaje z databáze
      */
     public function delete(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
@@ -102,7 +109,10 @@ class TournamentController extends AbstractController
     /**
      * @param Request $request
      * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      * @Route("/tournament/unlink/{id}", methods={"DELETE"})
+     *
+     * funkce k odstranění týmu
      */
     public function remove_team(Request $request, $id) {
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
@@ -118,8 +128,13 @@ class TournamentController extends AbstractController
     }
 
     /**
-     * @Route("/tournaments/edit/{id}")
-     * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @throws \Exception
+     * @Route("/tournaments/edit/{id}", methods={"GET", "POST"})
+     *
+     * funkce k editaci turnaje
      */
     public function edit(Request $request, $id) {
         $title = "Editace turnaje";
@@ -147,18 +162,27 @@ class TournamentController extends AbstractController
 
 
     /**
-     * @Route("/tournaments/detail/{id}")
-     * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @Route("/tournaments/detail/{id}", methods={"GET", "POST"})
+     *
+     * funkce k zobrazeí detailu turnaje
      */
     public function show(Request $request, $id)
     {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        if (!($tournament)) {
+            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
+            return $this->redirect("/tournaments");
+        }
         $title = "Detail turnaje '" . $tournament->getName() . "'";
         $tournament_date = $tournament->getDate()->format('d. m. Y');
 
         $table['name'] = "teams";
         $table['headers'] = array("Název");
         $table['rows'] = array();
+        $admin = $tournament->getAdminString();
 
         // naplnění struktury pro výpis tabulky
         // TODO změnit na správenj tým
@@ -171,6 +195,7 @@ class TournamentController extends AbstractController
         }
 
         $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+        //$all_teams = $tournament->getAdmin()->getTeams();
         $form_teams = null;
         foreach ($all_teams as $team) {
             // slouží k výpisu jen hráču, co ještě nejsou v týmu
@@ -186,10 +211,11 @@ class TournamentController extends AbstractController
             ->add('name', ChoiceType::class, array(
                 'choices'  => $form_teams,
                 'attr' => array('class' => 'custom-select'),
+                'placeholder' => " ",
                 'label' => 'Dostupné týmy' ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Uložit',
-                'attr' => array('class' => 'btn btn btn-success mt-3', 'data-dissmiss' => 'modal')) )
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')) )
             ->getForm();
 
         // Zpracování add formuláře.
@@ -205,11 +231,16 @@ class TournamentController extends AbstractController
         }
 
         return $this->render('pages/details/tournament.html.twig', array('title' => $title, 'tournament' => $tournament,
-            'table' => $table, 'formadd' => $formadd->createView(), 'tournament_date' => $tournament_date));
+            'table' => $table, 'formadd' => $formadd->createView(), 'tournament_date' => $tournament_date, 'admin' => $admin));
     }
 
     /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @throws \Exception
      * @Route("/tournaments", name="/tournaments", methods={"GET", "POST"})
+     *
+     * funkce k zobrazení všech hráčů v turnaji
      */
     public function index(Request $request)
     {
