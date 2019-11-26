@@ -26,7 +26,9 @@
 {#                dopnění pro tabulku uživatelů#}
                     {% if userUpgrade is defined %}
                         {% if row.isAdmin == false %}
-                        <a href="#" class="btn btn-sm btn-warning make-admin" data-id="{{ row.id }}">Povýšit na admina</a>
+                            <a href="#" class="btn btn-sm btn-warning make-admin" data-id="{{ row.id }}">Povýšit práva na admina</a>
+                        {% else %}
+                            <a href="#" class="btn btn-sm btn-info degrade-admin" data-id="{{ row.id }}">Odebrat práva admina</a>
                         {% endif %}
                     {% else %}
                     <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-sm btn-warning edit-item">Upravit</a>

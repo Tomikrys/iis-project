@@ -194,7 +194,12 @@ class TournamentController extends AbstractController
             array_push($table['rows'], $row);
         }
 
-        $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+        $all_teams = null;
+        if ($tournament->getAdminString() == $this->getUser()->getEmail()){
+            $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+        } else {
+            $all_teams = $this->getUser()->getTeams();
+        }
         //$all_teams = $tournament->getAdmin()->getTeams();
         $form_teams = null;
         foreach ($all_teams as $team) {

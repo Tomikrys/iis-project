@@ -13,7 +13,7 @@
 
 {% block javascripts %}
 <script>
-    function Confirm(title, msg, $true, $false) {
+    function Confirm(title, msg, $true, $false, trueCallback, falseCallback) {
         $("#deleteModal").modal("show");
         $("#deleteModal .modal-title").html(title);
         $("#deleteModal .modal-body").html(msg);
@@ -21,13 +21,10 @@
         $("#deleteModal .cancelAction").html($false);
 
         $('#deleteModal .doAction').click(function () {
-            $("#deleteModal").modal("hide");
-            alert("penis");
-            return true;
+            trueCallback();
         });
         $('#deleteModal .cancelAction, #deleteModal .fa-close').click(function () {
-            $("#deleteModal").modal("hide");
-            return false;
+            falseCallback();
         });
     }
 
@@ -35,36 +32,49 @@
 //    deleting item
         document.addEventListener('click', e => {
             if ($(e.target).hasClass('delete-item')) {
-                // TODO opravit modal
-                // TODO Martyho, pomoc"!!!!!D
-                alert(Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit'));
-                if (Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit')) {
-                    alert("hello");
-                    $("#loading").modal("show");
-                    alert(`/${table}/delete/${id}`);
-                    const id = e.target.getAttribute('data-id');
-                    const table = e.target.getAttribute('data-table');
-                    fetch(`/${table}/delete/${id}`, {
-                        method: 'DELETE'
-                    }).then(res => window.location.reload());
-                    $("#loading").modal("hide");
-                }
+                Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit',
+                    function () {
+                        $("#deleteModal").modal("hide");
+                        $("#loading").modal("show");
+                        const id = e.target.getAttribute('data-id');
+                        const table = e.target.getAttribute('data-table');
+                        fetch(`/${table}/delete/${id}`, {
+                            method: 'DELETE'
+                        }).then(res => window.location.reload());
+                        $("#loading").modal("hide");
+                    }, function () {
+                        $("#deleteModal").modal("hide");
+                    });
             }
             if ($(e.target).hasClass('make-admin')) {
-                // TODO opravit modal
-                // TODO Martyho, pomoc"!!!!!D
-                alert(Confirm('Povýšení na admina', 'Opravdu chcete uživatele povýšit?', 'Povýšit', 'Zrušit'));
-                if (Confirm('Povýšení na admina', 'Opravdu chcete uživatele povýšit?', 'Povýšit', 'Zrušit')) {
-                    alert("hello");
-                    $("#loading").modal("show");
-                    const id = e.target.getAttribute('data-id');
-                    fetch(`/users/upgrade/${id}`, {
-                        method: 'PATCH'
-                    }).then(res => window.location.reload());
-                    $("#loading").modal("hide");
-                }
+                Confirm('Povýšení na admina', 'Opravdu chcete uživatele povýšit?', 'Povýšit', 'Zrušit',
+                    function() {
+                        $("#deleteModal").modal("hide");
+                        $("#loading").modal("show");
+                        const id = e.target.getAttribute('data-id');
+                        fetch(`/users/upgrade/${id}`, {
+                            method: 'PATCH'
+                        }).then(res => window.location.reload());
+                        $("#loading").modal("hide");
+                    }, function (){
+                        $("#deleteModal").modal("hide");
+                });
             }
-        })
+            if ($(e.target).hasClass('degrade-admin')) {
+                Confirm('Degradovat na uživatele', 'Opravdu chcete uživatele degradovat?', 'Degradovat', 'Zrušit',
+                    function() {
+                        $("#deleteModal").modal("hide");
+                        $("#loading").modal("show");
+                        const id = e.target.getAttribute('data-id');
+                        fetch(`/users/degrade/${id}`, {
+                            method: 'PATCH'
+                        }).then(res => window.location.reload());
+                        $("#loading").modal("hide");
+                    }, function (){
+                        $("#deleteModal").modal("hide");
+                    });
+            }
+        });
 
 </script>
 {% endblock %}

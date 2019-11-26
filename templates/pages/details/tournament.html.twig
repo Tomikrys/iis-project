@@ -24,7 +24,7 @@
 
     <h2>Týmy v turnaji:</h2>
     {{ include('pages/details/parts/table_view.html.twig') }}
-    {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
+    {% if is_granted('ROLE_CAPTAIN') %}
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat tým</button>
     {% endif %}
 

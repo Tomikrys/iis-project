@@ -111,11 +111,13 @@ class User implements UserInterface
         $rolesString = "";
         $i = 0;
         foreach ($roles as $role) {
-            if ($i != 0) {
-                $rolesString .= ", ";
+            if ($role != "ROLE_USER") {
+                if ($i != 0) {
+                    $rolesString .= ", ";
+                }
+                $rolesString .= $role;
+                $i++;
             }
-            $rolesString .= $role;
-            $i++;
         }
 
         $rolesString = str_replace("ROLE_", "", $rolesString);

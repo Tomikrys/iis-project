@@ -147,7 +147,8 @@ class SecurityController extends AbstractController
     /**
      * @param Request $request
      * @param $id
-     * @Route("/users/upgrade/{id}", name="/users/upgrade", methods={"GET", "PATCH"})
+     * @return Response
+     * @Route("/users/upgrade/{id}", name="/users/upgrade", methods={"PATCH"})
      * @IsGranted("ROLE_ADMIN")
      *
      * funkce k přidání administrátorských práv uživateli
@@ -162,7 +163,32 @@ class SecurityController extends AbstractController
         // vytvoření flash oznámení
         $this->addFlash('warning', 'Uživatel \'' . $user->getEmail() . '\' byl povýšen na admina.');
         $response = new Response();
-        $response->send();
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return Response
+     * @Route("/users/degrade/{id}", name="/users/downgrade", methods={"PATCH"})
+     * @IsGranted("ROLE_ADMIN")
+     *
+     * funkce k odebrání administrátorských práv uživateli
+     */
+    public function remove_admin(Request $request, $id) {
+        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $userRoles = $user->getRoles();
+        $index = array_search('ROLE_ADMIN',$userRoles);
+        if($index !== FALSE){
+            unset($userRoles[$index]);
+        }
+        $user->setRoles($userRoles);
+        $entityManager->flush();
+        // vytvoření flash oznámení
+        $this->addFlash('warning', 'Uživatel \'' . $user->getEmail() . '\' byl degradován na prostého uživatele.');
+        $response = new Response();
+        return $response;
     }
 
 
@@ -186,13 +212,15 @@ class SecurityController extends AbstractController
         $users = $this->getDoctrine()->getRepository(User::class)->findAll();
         $user = null;
         foreach ($users as $user) {
-            $row['id'] = $user->getId();
-            $row['data'] = array($user->getEmail(), $user->getRolesString());
-            $row['link'] = false;
-            $row['name'] = $user->getEmail();
-            $row['isAdmin'] = $user->hasRole("ROLE_ADMIN");
-            $row['rolesString'] = $user->getRolesString();
-            array_push($table['rows'], $row);
+            if ($user->getId() != $this->getUser()->getId()) {
+                $row['id'] = $user->getId();
+                $row['data'] = array($user->getEmail(), $user->getRolesString());
+                $row['link'] = false;
+                $row['name'] = $user->getEmail();
+                $row['isAdmin'] = $user->hasRole("ROLE_ADMIN");
+                $row['rolesString'] = $user->getRolesString();
+                array_push($table['rows'], $row);
+            }
         }
 
         return $this->render('pages/tables/pages/users.html.twig', array('table_name' => $table_name, 'table' => $table));
@@ -283,8 +311,10 @@ class SecurityController extends AbstractController
             return $this->redirect($request->getUri());
         }
 
+        $admin = $team->getAdminString();
+
         return $this->render('pages/details/user.html.twig', array('title' => $title, 'user' => $user,
             'table_teams' => $table_teams, 'table_tournaments' => $table_tournaments, 'table_players' => $table_players,
-            'formeditpassword' => $formeditpassword->createView()));
+            'formeditpassword' => $formeditpassword->createView(), "admin" => $admin));
     }
 }
