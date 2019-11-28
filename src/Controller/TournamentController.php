@@ -195,17 +195,19 @@ class TournamentController extends AbstractController
         }
 
         $all_teams = null;
-        if ($tournament->getAdminString() == $this->getUser()->getEmail()){
-            $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
-        } else {
-            $all_teams = $this->getUser()->getTeams();
-        }
-        //$all_teams = $tournament->getAdmin()->getTeams();
         $form_teams = null;
-        foreach ($all_teams as $team) {
-            // slouží k výpisu jen hráču, co ještě nejsou v týmu
-            if (!$teams->contains($team)) {
-                $form_teams[$team->getName()] = $team->getId();
+        if ($this->getUser() != null) {
+            if ($tournament->getAdminString() == $this->getUser()->getEmail() or $this->getUser()->hasRole("ROLE_ADMIN")) {
+                $all_teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+            } else {
+                $all_teams = $this->getUser()->getTeams();
+            }
+            //$all_teams = $tournament->getAdmin()->getTeams();
+            foreach ($all_teams as $team) {
+                // slouží k výpisu jen hráču, co ještě nejsou v týmu
+                if (!$teams->contains($team)) {
+                    $form_teams[$team->getName()] = $team->getId();
+                }
             }
         }
 

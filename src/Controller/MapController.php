@@ -35,11 +35,62 @@ class MapController extends TournamentController {
      * funkce pro vytvoření prázdného prvotního kola
      */
     public function make_first ($tournament) {
-        $teams = $tournament->getShuffledTeams();
         $entityManager = $this->getDoctrine()->getManager();
-        // pole přidaných her
+        $teams = $tournament->getShuffledTeams();
+        $teams_count = count($teams);
+        // vztvoří nulté hry pro nejslabší, tak aby v prvním kole bylo 2^n týmů
+        $square = [2, 4, 8, 16, 32, 64];
+        $i = 0;
         $game = null;
         $games = [];
+        dump($teams_count);
+        $lvl = 0;
+        while (!in_array($teams_count, $square)) {
+            $lvl = 1;
+            $team = array_pop($teams);
+            dump($team);
+            if ($i % 2 ==  0) {
+                $game = new Game();
+                $game->setTeam1($team);
+            } else {
+                $game->setTeam2($team);
+                $game->setTournament($tournament);
+                $game->setRound($lvl);
+                // naplnen0 bod; teamu prázdným polem o počtu prvcích, kolik her má turnaj mít.
+                $array = [];
+                for ($j = 1; $j <= $tournament->getPlaysInGame(); $j++) {
+                    array_push($array, " ");
+                }
+                $game->setPointsTeam1($array);
+                $game->setPointsTeam2($array);
+
+                dump($game);
+                $entityManager->persist($game);
+                $entityManager->flush();
+
+                //vytvoření hry do dalšího kola
+                $nextgame = new Game();
+                $team = array_pop($teams);
+                $nextgame->setTeam1($team);
+                $nextgame->setTournament($tournament);
+                $nextgame->setRound($lvl+1);
+                $game->setNextGame($nextgame);
+                $game->setFirstInNextGame(false);
+                $nextgame->setPointsTeam1($array);
+                $nextgame->setPointsTeam2($array);
+                $entityManager->persist($nextgame);
+                $entityManager->flush();
+                array_push($games, $nextgame);
+
+                $teams_count--;
+            }
+            $i++;
+        }
+        //exit;
+
+        $lvl++;
+        // pole přidaných her
+        $game = null;
         $i = 0;
         foreach ($teams as $team) {
             if ($i % 2 ==  0) {
@@ -48,7 +99,7 @@ class MapController extends TournamentController {
             } else {
                 $game->setTeam2($team);
                 $game->setTournament($tournament);
-                $game->setRound(1);
+                $game->setRound($lvl);
                 // naplnen0 bod; teamu prázdným polem o počtu prvcích, kolik her má turnaj mít.
                 $array = [];
                 for ($j = 1; $j <= $tournament->getPlaysInGame(); $j++) {
@@ -65,7 +116,7 @@ class MapController extends TournamentController {
             }
             $i++;
         }
-        return $games;
+        return array($games, $lvl);
     }
 
     /**
@@ -102,7 +153,6 @@ class MapController extends TournamentController {
                     $game->setNextGame($newGame);
                     $game->setFirstInNextGame(false);
                 }
-                dump($game);
             }
             $i++;
         }
@@ -132,8 +182,9 @@ class MapController extends TournamentController {
             }
         }
 
-        $games = $this->make_first($tournament);
-        $this->make_rest($tournament, $games);
+        $lvl = null;
+        list($games,$lvl) = $this->make_first($tournament);
+        $this->make_rest($tournament, $games, $lvl+1);
 
         $response = new Response();
         $response->send();
