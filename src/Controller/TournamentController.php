@@ -117,12 +117,12 @@ class TournamentController extends AbstractController
     public function remove_team(Request $request, $id) {
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
         if (!($team)) {
-            $this->addFlash('error', 'Tým s id \'' . $id . '\' neexistuje.');
-            return $this->redirect("/tournaments");
+            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         if ($this->getUser()->getEmail() != $this->getAdminString()) {
             $this->addFlash('error', 'Turnaj \'' . $this->getName() . '\' nemůžete upravovat.');
-            return $this->redirect("/tournaments");
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         $this->removeTeam($team);
     }
@@ -141,11 +141,11 @@ class TournamentController extends AbstractController
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
         if (!($tournament)) {
             $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
-            return $this->redirect("/tournaments");
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         if (!($this->getUser()->getEmail() == $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN"))) {
             $this->addFlash('error', 'Turnaj \'' . $tournament->getName() . '\' nemáte oprávnění upravovat.');
-            return $this->redirect("/tournaments");
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         $formedit = $this->make_form($tournament);
 
@@ -154,7 +154,7 @@ class TournamentController extends AbstractController
         if ($formedit->isSubmitted() && $formedit->isValid()) {
             $this->tournamentRepository->save($tournament);
             $this->addFlash('success', 'Turnaj \'' . $tournament->getName() . '\' byl úspěšně editován.');
-            return $this->redirect($this->generateUrl('/tournaments'));
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
 
         return $this->render('pages/tables/edit.html.twig', array('title' => $title, 'formedit' => $formedit->createView()));
@@ -174,7 +174,7 @@ class TournamentController extends AbstractController
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
         if (!($tournament)) {
             $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
-            return $this->redirect("/tournaments");
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         $title = "Detail turnaje '" . $tournament->getName() . "'";
         $tournament_date = $tournament->getDate()->format('d. m. Y');
@@ -189,6 +189,7 @@ class TournamentController extends AbstractController
         $teams = $tournament->getTeams();
         $team = null;
         foreach($teams as $team){
+            $row['link'] = true;
             $row['id'] = $team->getId();
             $row['data'] = array($team->getName());
             array_push($table['rows'], $row);

@@ -4,18 +4,23 @@
 {% block body %}
     <h1>Nastavení uživatele: {{ user.email }}</h1>
     <h2>Změna hesla</h2>
-    {{ form_start(formeditpassword) }}
+    {{ form_start(formeditpassword, {'attr': {'id': 'form_password'}}) }}
     {{ form_widget(formeditpassword) }}
     {{ form_end(formeditpassword) }}
 
     <h2>Založené turnaje</h2>
-    {{ include('pages/details/parts/table_view.html.twig', {table: table_tournaments}) }}
+    {{ include('pages/tables/parts/table_view.html.twig', {table: table_tournaments, formaddname: "tournament"}) }}
 
     <h2>Založené týmy</h2>
-    {{ include('pages/details/parts/table_view.html.twig', {table: table_teams}) }}
+    {{ include('pages/tables/parts/table_view.html.twig', {table: table_teams, formaddname: "team"}) }}
 
-    <h2>Založení uživatelé</h2>
-    {{ include('pages/details/parts/table_view.html.twig', {table: table_players}) }}
+    <h2>Založení hráči</h2>
+    {{ include('pages/tables/parts/table_view.html.twig', {table: table_players, formaddname: "player"}) }}
+
+
+    {{ include('pages/tables/parts/add_form_modal.html.twig', {formadd: formadd_tournaments, formaddname: "tournament"}) }}
+    {{ include('pages/tables/parts/add_form_modal.html.twig', {formadd: formadd_teams, formaddname: "team"}) }}
+    {{ include('pages/tables/parts/add_form_modal.html.twig', {formadd: formadd_players, formaddname: "player"}) }}
 
 
 {% endblock %}

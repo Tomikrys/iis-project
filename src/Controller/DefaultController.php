@@ -22,4 +22,18 @@ class DefaultController extends AbstractController {
         return $this->render('pages/index.html.twig');
     }
 
+    /**
+     * @Route("/bring_me_back", name="/bring_me_back", methods={"GET"})
+     */
+    public function back() {
+        return new Response(
+            "<html>
+            <body>
+                <script>
+                window.history.go(-2);
+                </script>
+            </body>
+        </html>");
+    }
+
 }

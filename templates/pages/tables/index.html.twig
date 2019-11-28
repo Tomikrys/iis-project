@@ -7,7 +7,7 @@
     {% block content %}
     {% endblock %}
 
-    {{ include('pages/tables/parts/add_form_modal.html.twig') }}
+    {{ include('pages/tables/parts/add_form_modal.html.twig', {formaddname: "default"}) }}
 {#    {{ include('pages/tables/parts/edit_form_modal.html.twig') }}#}
 {% endblock %}
 

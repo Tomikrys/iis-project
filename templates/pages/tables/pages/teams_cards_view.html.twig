@@ -19,5 +19,5 @@
 </div>
 
 {% if is_granted('ROLE_CAPTAIN') %}
-<button type="button" class="btn btn-success mb-5" data-toggle="modal" data-target="#addFormModal">Vytvořit tým</button>
+<button type="button" class="btn btn-success mb-5" data-toggle="modal" data-target="#{{ formaddname }}">Vytvořit tým</button>
 {% endif %}

@@ -40,6 +40,7 @@ class PlayerController extends AbstractController {
      * @param Request $request
      * @param $id
      * @Route("/players/delete/{id}", methods={"DELETE"})
+     * @return Response
      *
      * funkce k odtranění hráče z databáze
      */
@@ -50,8 +51,7 @@ class PlayerController extends AbstractController {
         $entityManager->flush();
         // vytvoření flash oznámení
         $this->addFlash('warning', 'Hráč \'' . $player->getName() . '\' byl odstraněn.');
-        $response = new Response();
-        $response->send();
+        return new Response();
     }
 
 
@@ -154,6 +154,7 @@ class PlayerController extends AbstractController {
         $teams = $player->getTeams();
         $team = null;
         foreach($teams as $team){
+            $row['link'] = true;
             $row['id'] = $team->getId();
             $row['data'] = array($team->getName());
             array_push($table['rows'], $row);

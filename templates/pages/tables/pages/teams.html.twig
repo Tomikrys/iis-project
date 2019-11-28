@@ -1,7 +1,7 @@
 {% extends 'pages/tables/index.html.twig' %}
 {% block content %}
-    {{ include('pages/tables/pages/teams_cards_view.html.twig') }}
+    {{ include('pages/tables/pages/teams_cards_view.html.twig', {formaddname: "default"}) }}
     {% if is_granted('ROLE_ADMIN') %}
-        {{ include('pages/tables/parts/table_view.html.twig') }}
+        {{ include('pages/tables/parts/table_view.html.twig', {formaddname: "default"}) }}
     {% endif %}
 {% endblock %}

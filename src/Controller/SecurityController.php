@@ -2,15 +2,21 @@
 
 namespace App\Controller;
 
+use App\Entity\Player;
+use App\Entity\Team;
 use App\Entity\Tournament;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -226,10 +232,181 @@ class SecurityController extends AbstractController
         return $this->render('pages/tables/pages/users.html.twig', array('table_name' => $table_name, 'table' => $table));
     }
 
+
+    /**
+     * @param $tournament
+     * @return \Symfony\Component\Form\FormInterface
+     * @throws \Exception
+     *
+     * funkce pro tvormu formuláře k editaci či přidání turnaje
+     */
+    public function make_tournament_form($tournament)
+    {
+        // vytvoření formuláře pro přidání záznamu
+        $tournament_form = $this->createFormBuilder($tournament)
+            ->setAction('/users/tournament_add')
+            ->add('name', TextType::class, array(
+                'label' => 'Název',
+                'attr' => array('class' => 'form-control')
+            ))
+            ->add('date', DateType::class, array(
+                'label' => 'Datum',
+                'widget' => 'choice',
+                'input'  => 'datetime',
+                'format' => 'dd. MM. yyyy',
+                'data' => new \DateTime(),
+                'attr' => array('class' => 'form-control')
+            ))
+            ->add('price', IntegerType::class, array(
+                'label' => 'Cena',
+                'attr' => array('class' => 'form-control')
+            ))
+            ->add('plays_in_game', IntegerType::class, array(
+                'label' => 'Počet her na set',
+                'attr' => array('class' => 'form-control')
+            ))
+            ->add('max_teams_count', IntegerType::class, array(
+                'label' => 'Max. počet týmů',
+                'required' => false,
+                'attr' => array('class' => 'form-control')
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Uložit',
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')
+            ))
+            ->getForm();
+        return $tournament_form;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @throws \Exception
+     * @Route("/users/tournament_add", name="/users/tournament_add", methods={"GET", "POST"})
+     */
+    public function handle_tournament_form(Request $request) {
+        // Zpracování add formuláře.
+        $tournament = new Tournament();
+        $tournament_form = $this->make_tournament_form($tournament);
+        $tournament_form->handleRequest($request);
+        if ($tournament_form->isSubmitted() && $tournament_form->isValid()) {
+            $tournament->setAdmin($this->getUser());
+            $this->getDoctrine()->getManager()->persist($tournament);
+            $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'Turnaj \'' . $tournament->getName() . '\' byl úspěšně vytvořen.');
+            return $this->redirect('/bring_me_back');
+        }
+        return new Response();
+    }
+
+    /**
+     * @param $team
+     * @return \Symfony\Component\Form\FormInterface
+     *
+     * funkce k vytvoření formuláře pro přidání a editaci týmu
+     */
+    public function make_team_form($team)
+    {
+        // vytvoření formuláře pro přidání záznamu
+        $team_form = $this->createFormBuilder($team)
+            ->setAction('/users/team_add')
+            ->add('name', TextType::class, array(
+                'label' => 'Jméno',
+                'attr' => array('class' => 'form-control')
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Uložit',
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')))
+            ->getForm();
+        return $team_form;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @Route("/users/team_add", name="/users/team_add", methods={"GET", "POST"})
+     */
+    public function handle_team_form(Request $request) {
+        // Zpracování add formuláře.
+        $team = new Team();
+        $team_form = $this->make_team_form($team);
+        $team_form->handleRequest($request);
+        if ($team_form->isSubmitted() && $team_form->isValid()) {
+            $team->setAdmin($this->getUser());
+            $this->getDoctrine()->getManager()->persist($team);
+            $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně vytvořen.');
+            return $this->redirect("/bring_me_back");
+        }
+        return new Response();
+    }
+
+    /**
+     * @param $player
+     * @return \Symfony\Component\Form\FormInterface
+     *
+     * funkce vytvoří formulář k editaci a k přidání hráče
+     */
+    public function make_player_form($player) {
+        // vytvoření formuláře pro přidání záznamu
+        $player_form = $this->createFormBuilder($player)
+            ->setAction('/users/player_add')
+            ->add('name', TextType::class, array(
+                'label' => 'Jméno',
+                'attr'=> array('class' => 'form-control')
+            ))
+            ->add('is_girl', ChoiceType::class, array(
+                'label' => 'Pohlaví',
+                'choices'  => array(
+                    'Muž' => false,
+                    'Žena' => true
+                ),
+                'placeholder' => " ",
+                'attr' => array('class' => 'custom-select')
+            ))
+            ->add('phone', TextType::class, array(
+                'label' => 'Telefon',
+                'required'   => false,
+                'attr'=> array('class' => 'form-control')
+            ))
+            ->add('email', TextType::class, array(
+                'label' => 'Email',
+                'required'   => false,
+                'attr'=> array('class' => 'form-control')
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Uložit',
+                'attr' => array('class' => 'btn btn btn-success mt-3 showloading', 'data-dissmiss' => 'modal')) )
+            ->getForm();
+        return $player_form;
+    }
+
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @Route("/users/player_add", name="/users/player_add", methods={"GET", "POST"})
+     */
+    public function handle_player_form(Request $request) {
+        // Zpracování add formuláře.
+        $player = new Player();
+        $player_form = $this->make_player_form($player);
+        $player_form->handleRequest($request);
+        if ($player_form->isSubmitted() && $player_form->isValid()) {
+            $player->setAdmin($this->getUser());
+            $this->getDoctrine()->getManager()->persist($player);
+            $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně vytvořen.');
+            return $this->redirect("/bring_me_back");
+        }
+        return new Response();
+    }
+
     /**
      * @param Request $request
      * @param $id
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @throws \Exception
      * @Route("/user/{id}", methods={"GET", "POST"})
      *
      * funkce k zobrazení detailu uživatele
@@ -250,6 +427,7 @@ class SecurityController extends AbstractController
         foreach($teams as $team){
             $row['id'] = $team->getId();
             $row['data'] = array($team->getName());
+            $row['link'] = true;
             array_push($table_teams['rows'], $row);
         }
 
@@ -285,6 +463,7 @@ class SecurityController extends AbstractController
         $player = null;
         foreach($players as $player){
             $row['id'] = $player->getId();
+            $row['link'] = true;
             $row['data'] = array($player->getName(), $player->getGender(), $player->getPhone(), $player->getEmail());
             array_push($table_players['rows'], $row);
         }
@@ -311,10 +490,24 @@ class SecurityController extends AbstractController
             return $this->redirect($request->getUri());
         }
 
-        $admin = $team->getAdminString();
+        $admin = null;
+        if ($team != null)
+            $admin = $team->getAdminString();
+
+        // modální okna pro přidávání do tabulek
+        $tournament = new Tournament();
+        $formadd_tournaments = $this->make_tournament_form($tournament);
+
+        $team = new Team();
+        $formadd_teams = $this->make_team_form($team);
+
+        $player = new Player();
+        $formadd_players = $this->make_player_form($player);
 
         return $this->render('pages/details/user.html.twig', array('title' => $title, 'user' => $user,
             'table_teams' => $table_teams, 'table_tournaments' => $table_tournaments, 'table_players' => $table_players,
+            'formadd_tournaments' => $formadd_tournaments->createView(), 'formadd_teams' => $formadd_teams->createView(),
+            'formadd_players' => $formadd_players->createView(),
             'formeditpassword' => $formeditpassword->createView(), "admin" => $admin));
     }
 }

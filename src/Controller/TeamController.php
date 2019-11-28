@@ -92,12 +92,14 @@ class TeamController extends AbstractController
         $title = "Editace týmu";
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
         if (!($team)) {
-            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
-            return $this->redirect("/teams");
+            $this->addFlash('error', 'Tým s id \'' . $id . '\' neexistuje.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
-        if (!($this->getUser()->getEmail() == $team->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN"))) {
+
+        if (!($this->getUser()!= null and ($this->getUser()->getEmail() == $team->getAdminString()
+            or $this->getUser()->hasRole("ROLE_ADMIN")))) {
             $this->addFlash('error', 'Tým \'' . $team->getName() . '\' nemáte oprávnění upravovat.');
-            return $this->redirect("/teams");
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         $formedit = $this->make_form($team);
 
@@ -106,7 +108,7 @@ class TeamController extends AbstractController
         if ($formedit->isSubmitted() && $formedit->isValid()) {
             $this->teamRepository->save($team);
             $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně editován.');
-            return $this->redirect($this->generateUrl('/teams'));
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
 
         return $this->render('pages/tables/edit.html.twig', array('title' => $title, 'formedit' => $formedit->createView()));
@@ -126,7 +128,7 @@ class TeamController extends AbstractController
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
         if (!($team)) {
             $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
-            return $this->redirect("/teams");
+            return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         $title = "Detail týmu '" . $team->getName() . "'";
 
@@ -140,6 +142,7 @@ class TeamController extends AbstractController
         $players = $team->getPlayers();
         $player = null;
         foreach($players as $player){
+            $row['link'] = true;
             $row['id'] = $player->getId();
             $row['data'] = array($player->getName(), $player->getGender(), $player->getPhone(), $player->getEmail());
             array_push($table['rows'], $row);
