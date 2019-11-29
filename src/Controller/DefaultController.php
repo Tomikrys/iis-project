@@ -23,7 +23,7 @@ class DefaultController extends AbstractController {
     }
 
     /**
-     * @Route("/bring_me_back", name="/bring_me_back", methods={"GET"})
+     * @Route("/bring_me_back", name="/bring_me_back", methods={"GET", "POST", "DELETE"})
      */
     public function back() {
         return new Response(

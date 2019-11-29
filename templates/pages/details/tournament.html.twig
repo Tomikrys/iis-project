@@ -6,7 +6,7 @@
 
     <h2>Pavouk</h2>
     <a href="/tournaments/detail/{{ tournament.id }}/map" class="btn btn-success">Zobrazit pavouka</a>
-    {% if is_granted('ROLE_ADMIN') or (app.user is not null and row.admin == app.user.email) %}
+    {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
     <button onclick="generate_games({{ tournament.id }})" class="btn btn-danger">Generovat pavouka</button>
     {% endif %}
 
@@ -23,13 +23,13 @@
     <p>{{ tournament.maxTeamsCount }}</p>
 
     <h2>Týmy v turnaji:</h2>
-    {{ include('pages/tables/parts/table_view.html.twig', {formaddname: "teams"}) }}
+    {{ include('pages/details/parts/table_view.html.twig', {formaddname: "teams"}) }}
     {% if is_granted('ROLE_CAPTAIN') %}
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat tým</button>
     {% endif %}
 
     {% if is_granted('ROLE_CAPTAIN') %}
-    {{ include('pages/tables/parts/add_form_modal.html.twig', {formaddname: "teams"}) }}
+    {{ include('pages/details/parts/add_form_modal.html.twig', {formaddname: "teams"}) }}
     {% endif %}
     {#    {{ include('pages/tables/parts/edit_form_modal.html.twig') }}#}
 {% endblock %}
@@ -58,16 +58,20 @@
         if (table) {
 //    deleting item
             table.addEventListener('click', e => {
-                if ($(e.target).hasClass('delete-item')) {
-                    if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
-                        $("#loading").modal("show");
-                        const id = e.target.getAttribute('data-id');
-                        const table = e.target.getAttribute('data-table');
-                        fetch(`/${table}/unlink/${id}`, {
-                            method: 'DELETE'
-                        }).then(res => window.location.reload());
-                        $("#loading").modal("hide");
-                    }
+                if ($(e.target).hasClass('remove-item')) {
+                    Confirm('Odebrat', 'Opravdu chcete tým z turnaje odebrat?', 'Odebrat', 'Zrušit',
+                        function () {
+                            $("#deleteModal").modal("hide");
+                            $("#loading").modal("show");
+                            const tournament_id = e.target.getAttribute('data-id');
+                            const team_id = e.target.getAttribute('data-row-id');
+                            fetch(`/tournament/${tournament_id}/unlink/${team_id}`, {
+                                method: 'DELETE'
+                            }).then(res => window.location.reload());
+                            $("#loading").modal("hide");
+                        }, function () {
+                            $("#deleteModal").modal("hide");
+                        });
                 }
             })
         }

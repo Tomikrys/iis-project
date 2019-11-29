@@ -17,7 +17,7 @@
             {% endfor %}
             {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
             <td>
-                <a href="#" class="btn btn-danger delete-item" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+                <a href="#" class="btn btn-danger remove-item" data-id="{{ id }}" data-row-id="{{ row.id }}" data-table="{{ table.name }}">Odebrat</a>
             </td>
             {% endif %}
         </tr>

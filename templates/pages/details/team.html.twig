@@ -5,9 +5,9 @@
     <h1>Detail týmu: {{ team.name }}</h1>
     <h2>Logo:</h2>
 {#    TODO add logo#}
+
     <h2>Hráči v týmu:</h2>
     {{ include('pages/details/parts/table_view.html.twig', {formaddname: "player"}) }}
-
     {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat hráče</button>
     {% endif %}
@@ -24,16 +24,20 @@
         if (table) {
 //    deleting item
             table.addEventListener('click', e => {
-                if ($(e.target).hasClass('delete-item')) {
-                    $("#loading").modal("show");
-                    if (Confirm('Opravdu?', 'Are you sure you want to visit Google', 'Ano', 'Zrušit', "https://www.google.com.eg")) {
-                        const id = e.target.getAttribute('data-id');
-                        const table = e.target.getAttribute('data-table');
-                        fetch(`/${table}/delete/${id}`, {
-                            method: 'DELETE'
-                        }).then(res => window.location.reload());
-                    }
-                    $("#loading").modal("hide");
+                if ($(e.target).hasClass('remove-item')) {
+                    Confirm('Odebrat', 'Opravdu chcete hráče z týmu odebrat?', 'Odebrat', 'Zrušit',
+                        function () {
+                            $("#deleteModal").modal("hide");
+                            $("#loading").modal("show");
+                            const team_id = e.target.getAttribute('data-id');
+                            const player_id = e.target.getAttribute('data-row-id');
+                            fetch(`/team/${team_id}/unlink/${player_id}`, {
+                                method: 'DELETE'
+                            }).then(res => window.location.reload());
+                            $("#loading").modal("hide");
+                        }, function () {
+                            $("#deleteModal").modal("hide");
+                        });
                 }
             })
         }

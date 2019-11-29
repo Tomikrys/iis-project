@@ -82,6 +82,21 @@
 
         {{ include('parts/footer.html.twig') }}
         <script>
+            function Confirm(title, msg, $true, $false, trueCallback, falseCallback) {
+                $("#deleteModal").modal("show");
+                $("#deleteModal .modal-title").html(title);
+                $("#deleteModal .modal-body").html(msg);
+                $("#deleteModal .doAction").html($true);
+                $("#deleteModal .cancelAction").html($false);
+
+                $('#deleteModal .doAction').click(function () {
+                    trueCallback();
+                });
+                $('#deleteModal .cancelAction, #deleteModal .fa-close').click(function () {
+                    falseCallback();
+                });
+            }
+
             let logouttimeout = document.getElementById('logout-timeout'),
                 seconds = 0, minutes = 15,
                 t;

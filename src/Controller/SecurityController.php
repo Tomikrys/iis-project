@@ -54,9 +54,9 @@ class SecurityController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+         if ($this->getUser()) {
+             return $this->redirectToRoute($this->generateUrl("/tournaments"));
+         }
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -407,7 +407,7 @@ class SecurityController extends AbstractController
      * @param $id
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
-     * @Route("/users/detail/{id}", methods={"GET", "POST"})
+     * @Route("/users/detail/{id}", name="/users/detail", methods={"GET", "POST"})
      *
      * funkce k zobrazení detailu uživatele
      */

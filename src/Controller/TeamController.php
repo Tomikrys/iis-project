@@ -78,6 +78,35 @@ class TeamController extends AbstractController
         $response->send();
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @Route("/team/{team_id}/unlink/{player_id}", methods={"DELETE"})
+     *
+     * funkce k odstranění týmu
+     */
+    public function remove_team(Request $request, $team_id, $player_id) {
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($team_id);
+        $player = $this->getDoctrine()->getRepository(Player::class)->find($player_id);
+        if (!($team)) {
+            $this->addFlash('error', 'Tým s id \'' . $team . '\' neexistuje.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        if (!($player)) {
+            $this->addFlash('error', 'Hráč s id \'' . $player_id . '\' neexistuje.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        if ($this->getUser()->getEmail() != $team->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN")
+            or $this->getUser()->getEmail() != $player->getAdminString()) {
+            $this->addFlash('error', 'Hráče \'' . $player->getName() . '\' nemůžete odebrat z týmu \'' . $team->getName() . '\'.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        $team->removeTeam($player);
+        $this->getDoctrine()->getManager()->persist($player);
+        $this->getDoctrine()->getManager()->persist($team);
+        $this->getDoctrine()->getManager()->flush();
+        return new Response();
+    }
+
 
     /**
      * @param Request $request
@@ -186,7 +215,7 @@ class TeamController extends AbstractController
         }
 
         return $this->render('pages/details/team.html.twig', array('title' => $title, 'team' => $team,
-            'table' => $table, 'formadd' => $formadd->createView(), 'admin' => $admin));
+            'table' => $table, 'formadd' => $formadd->createView(), 'admin' => $admin, 'id' => $id));
     }
 
 

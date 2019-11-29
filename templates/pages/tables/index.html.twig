@@ -13,23 +13,7 @@
 
 {% block javascripts %}
 <script>
-    function Confirm(title, msg, $true, $false, trueCallback, falseCallback) {
-        $("#deleteModal").modal("show");
-        $("#deleteModal .modal-title").html(title);
-        $("#deleteModal .modal-body").html(msg);
-        $("#deleteModal .doAction").html($true);
-        $("#deleteModal .cancelAction").html($false);
-
-        $('#deleteModal .doAction').click(function () {
-            trueCallback();
-        });
-        $('#deleteModal .cancelAction, #deleteModal .fa-close').click(function () {
-            falseCallback();
-        });
-    }
-
-
-//    deleting item
+    //    deleting item
         document.addEventListener('click', e => {
             if ($(e.target).hasClass('delete-item')) {
                 Confirm('Odstranit', 'Opravdu chcete záznam odstranit?', 'Odstranit', 'Zrušit',

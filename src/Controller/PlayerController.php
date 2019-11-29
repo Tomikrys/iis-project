@@ -95,6 +95,36 @@ class PlayerController extends AbstractController {
     }
 
     /**
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @Route("/player/{player_id}/unlink/{team_id}", methods={"DELETE"})
+     *
+     * funkce k odstranění týmu
+     */
+    public function remove_team(Request $request, $team_id, $player_id) {
+        $player = $this->getDoctrine()->getRepository(Player::class)->find($player_id);
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($team_id);
+        if (!($team)) {
+            $this->addFlash('error', 'Tým s id \'' . $team . '\' neexistuje.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        if (!($player)) {
+            $this->addFlash('error', 'Hráč s id \'' . $player_id . '\' neexistuje.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        if ($this->getUser()->getEmail() != $team->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN")
+            or $this->getUser()->getEmail() != $player->getAdminString()) {
+            $this->addFlash('error', 'Hráče \'' . $player->getName() . '\' nemůžete odebrat z týmu \'' . $team->getName() . '\'.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        $player->removeTeam($team);
+        $this->getDoctrine()->getManager()->persist($player);
+        $this->getDoctrine()->getManager()->persist($team);
+        $this->getDoctrine()->getManager()->flush();
+        return new Response();
+    }
+
+
+    /**
      * @param Request $request
      * @param $id
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
@@ -193,12 +223,12 @@ class PlayerController extends AbstractController {
             $player->addTeam($team);
             $this->getDoctrine()->getManager()->persist($player);
             $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně  do turnaje \'' . $team->getName() . '\'.');
+            $this->addFlash('success', 'Tým \'' . $player->getName() . '\' byl úspěšně  do turnaje \'' . $team->getName() . '\'.');
             return $this->redirect($request->getUri());
         }
 
         return $this->render('pages/details/player.html.twig', array('title' => $title, 'player' => $player,
-            'table' => $table, 'formadd' => $formadd->createView(), 'admin' => $admin));
+            'table' => $table, 'formadd' => $formadd->createView(), 'admin' => $admin, 'id' => $id));
     }
 
 

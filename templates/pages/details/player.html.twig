@@ -15,7 +15,6 @@
 
     <h2>Týmy do nichž patří</h2>
     {{ include('pages/details/parts/table_view.html.twig', {formaddname: "teams"}) }}
-
     {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addFormModal">Přidat do týmu</button>
         {{ include('pages/details/parts/add_form_modal.html.twig', {formaddname: "teams"}) }}
@@ -25,6 +24,26 @@
 
 {% block javascripts %}
     <script>
-
+        const table = document.getElementById('table');
+        if (table) {
+//    deleting item
+            table.addEventListener('click', e => {
+                if ($(e.target).hasClass('remove-item')) {
+                    Confirm('Odebrat', 'Opravdu chcete hráče z týmu odebrat?', 'Odebrat', 'Zrušit',
+                        function () {
+                            $("#deleteModal").modal("hide");
+                            $("#loading").modal("show");
+                            const player_id = e.target.getAttribute('data-id');
+                            const team_id = e.target.getAttribute('data-row-id');
+                            fetch(`/player/${player_id}/unlink/${team_id}`, {
+                                method: 'DELETE'
+                            }).then(res => window.location.reload());
+                            $("#loading").modal("hide");
+                        }, function () {
+                            $("#deleteModal").modal("hide");
+                        });
+                }
+            })
+        }
     </script>
 {% endblock %}

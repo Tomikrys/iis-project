@@ -108,23 +108,34 @@ class TournamentController extends AbstractController
 
     /**
      * @param Request $request
-     * @param $id
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     * @Route("/tournament/unlink/{id}", methods={"DELETE"})
+     * @param $tournament_id
+     * @param $team_id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @Route("/tournament/{tournament_id}/unlink/{team_id}", methods={"DELETE"})
      *
      * funkce k odstranění týmu
      */
-    public function remove_team(Request $request, $id) {
-        $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+    public function remove_team(Request $request, $tournament_id, $team_id) {
+        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($tournament_id);
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($team_id);
         if (!($team)) {
-            $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
+            $this->addFlash('error', 'Tým s id \'' . $team . '\' neexistuje.');
             return $this->redirect($this->generateUrl('/bring_me_back'));
         }
-        if ($this->getUser()->getEmail() != $this->getAdminString()) {
-            $this->addFlash('error', 'Turnaj \'' . $this->getName() . '\' nemůžete upravovat.');
+        if (!($tournament)) {
+            $this->addFlash('error', 'Turnaj s id \'' . $tournament_id . '\' neexistuje.');
             return $this->redirect($this->generateUrl('/bring_me_back'));
         }
-        $this->removeTeam($team);
+        if ($this->getUser()->getEmail() != $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN")
+            or $this->getUser()->getEmail() != $team->getAdminString()) {
+            $this->addFlash('error', 'Tým \'' . $team->getName() . '\' nemůžete odebrat z turnaje \'' . $tournament->getName() . '\'.');
+            return $this->redirect($this->generateUrl('/bring_me_back'));
+        }
+        $tournament->removeTeam($team);
+        $this->getDoctrine()->getManager()->persist($tournament);
+        $this->getDoctrine()->getManager()->persist($team);
+        $this->getDoctrine()->getManager()->flush();
+        return new Response();
     }
 
     /**
@@ -239,8 +250,9 @@ class TournamentController extends AbstractController
             return $this->redirect($request->getUri());
         }
 
-        return $this->render('pages/details/tournament.html.twig', array('title' => $title, 'tournament' => $tournament,
-            'table' => $table, 'formadd' => $formadd->createView(), 'tournament_date' => $tournament_date, 'admin' => $admin));
+        return $this->render('pages/details/tournament.html.twig', array('title' => $title,
+            'tournament' => $tournament, 'table' => $table, 'formadd' => $formadd->createView(),
+            'tournament_date' => $tournament_date, 'admin' => $admin, "id" => $id));
     }
 
     /**
@@ -289,6 +301,7 @@ class TournamentController extends AbstractController
             return $this->redirect($request->getUri());
         }
 
-        return $this->render('pages/tables/pages/tournaments.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));
+        return $this->render('pages/tables/pages/tournaments.html.twig', array('table_name' => $table_name,
+            'formadd' => $formadd->createView(), 'table' => $table));
     }
 }
