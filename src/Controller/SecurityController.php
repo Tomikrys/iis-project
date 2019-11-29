@@ -221,7 +221,7 @@ class SecurityController extends AbstractController
             if ($user->getId() != $this->getUser()->getId()) {
                 $row['id'] = $user->getId();
                 $row['data'] = array($user->getEmail(), $user->getRolesString());
-                $row['link'] = false;
+                $row['link'] = true;
                 $row['name'] = $user->getEmail();
                 $row['isAdmin'] = $user->hasRole("ROLE_ADMIN");
                 $row['rolesString'] = $user->getRolesString();
@@ -407,7 +407,7 @@ class SecurityController extends AbstractController
      * @param $id
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
-     * @Route("/user/{id}", methods={"GET", "POST"})
+     * @Route("/users/detail/{id}", methods={"GET", "POST"})
      *
      * funkce k zobrazení detailu uživatele
      */
@@ -428,6 +428,7 @@ class SecurityController extends AbstractController
             $row['id'] = $team->getId();
             $row['data'] = array($team->getName());
             $row['link'] = true;
+            $row["admin"] = $team->getAdminString();
             array_push($table_teams['rows'], $row);
         }
 
@@ -464,6 +465,7 @@ class SecurityController extends AbstractController
         foreach($players as $player){
             $row['id'] = $player->getId();
             $row['link'] = true;
+            $row["admin"] = $player->getAdminString();
             $row['data'] = array($player->getName(), $player->getGender(), $player->getPhone(), $player->getEmail());
             array_push($table_players['rows'], $row);
         }

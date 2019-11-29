@@ -143,7 +143,7 @@ class TournamentController extends AbstractController
             $this->addFlash('error', 'Turnaj s id \'' . $id . '\' neexistuje.');
             return $this->redirect($this->generateUrl('/bring_me_back'));
         }
-        if (!($this->getUser()->getEmail() == $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN"))) {
+        if (!($this->getUser() != null and ($this->getUser()->getEmail() == $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN")))) {
             $this->addFlash('error', 'Turnaj \'' . $tournament->getName() . '\' nemáte oprávnění upravovat.');
             return $this->redirect($this->generateUrl('/bring_me_back'));
         }
@@ -192,6 +192,7 @@ class TournamentController extends AbstractController
             $row['link'] = true;
             $row['id'] = $team->getId();
             $row['data'] = array($team->getName());
+            $row["admin"] = $team->getAdminString();
             array_push($table['rows'], $row);
         }
 

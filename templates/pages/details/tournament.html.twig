@@ -6,7 +6,7 @@
 
     <h2>Pavouk</h2>
     <a href="/tournaments/detail/{{ tournament.id }}/map" class="btn btn-success">Zobrazit pavouka</a>
-    {% if is_granted('ROLE_ADMIN') %}
+    {% if is_granted('ROLE_ADMIN') or (app.user is not null and row.admin == app.user.email) %}
     <button onclick="generate_games({{ tournament.id }})" class="btn btn-danger">Generovat pavouka</button>
     {% endif %}
 

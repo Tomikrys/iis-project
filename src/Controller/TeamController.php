@@ -144,6 +144,7 @@ class TeamController extends AbstractController
         foreach($players as $player){
             $row['link'] = true;
             $row['id'] = $player->getId();
+            $row["admin"] = $player->getAdminString();
             $row['data'] = array($player->getName(), $player->getGender(), $player->getPhone(), $player->getEmail());
             array_push($table['rows'], $row);
         }

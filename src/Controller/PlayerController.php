@@ -156,6 +156,7 @@ class PlayerController extends AbstractController {
         foreach($teams as $team){
             $row['link'] = true;
             $row['id'] = $team->getId();
+            $row["admin"] = $team->getAdminString();
             $row['data'] = array($team->getName());
             array_push($table['rows'], $row);
         }
