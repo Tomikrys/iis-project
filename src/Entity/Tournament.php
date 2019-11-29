@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Tournament
@@ -34,16 +35,23 @@ class Tournament
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Assert\Positive(message="Cena musí být kladné číslo větší jak nula.")
      */
     private $price;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Assert\Positive(
+     *     message="Počet hřišť musí být kladné číslo větší jak nula."
+     * )
      */
     private $field_count;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Assert\Positive(
+     *     message="Maximální počet týmů musí být kladné číslo větší jak nula."
+     * )
      */
     private $max_teams_count;
 
@@ -59,6 +67,9 @@ class Tournament
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\Positive(
+     *     message="Počet setů ve hře musí být kladné číslo větší jak nula."
+     * )
      */
     private $plays_in_game;
 

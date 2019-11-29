@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Player
@@ -34,11 +35,18 @@ class Player
 
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
+     * @Assert\Regex(
+     *     pattern="/^(\+[0-9]{2,3})? ?[1-9][0-9]{2} ?[0-9]{3} ?[0-9]{3}$/",
+     *     message="Telefonní číslo '{{ value }}' je ve špatném formátu."
+     * )
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Email(
+     *     message = "Email '{{ value }}' je ve špatném formátu."
+     * )
      */
     private $email;
 

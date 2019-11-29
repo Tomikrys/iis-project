@@ -24,7 +24,11 @@
             {% endif %}
         </ul>
         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-            <div class="navbar-text mr-2" style="width:30px"><p id="logout-timeout" class="h6 m-0 text-left"><time>15:00</time></p></div>
+            <div class="navbar-text mr-2" style="width:30px">
+                <p id="logout-timeout" class="h6 m-0 text-left" style="font-size: small; padding-top: 4px;">
+                    <time>29:59</time>
+                </p>
+            </div>
             <div class="btn-group mr-3">
               <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   {{ app.user.email }}

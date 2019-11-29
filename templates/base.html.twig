@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="https://bootswatch.com/4/sketchy/bootstrap.min.css">
         <link rel="icon" type="image/png" href="/public/favicon.png">
 
-        <link href="https://fonts.googleapis.com/css?family=Amatic+SC:700|Shadows+Into+Light+Two&display=swap&subset=latin-ext" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Amatic+SC:700|Mali|Pangolin&display=swap" rel="stylesheet">
 {#        <link rel="stylesheet" href="{{ asset('offline/bootstrap.min.css') }}" />#}
 {#        <script src="{{ asset('offline/jquery-3.3.1.slim.min.js') }}"></script>#}
 {#        <script src="{{ asset('offline/popper.min.js') }}"></script>#}
@@ -98,12 +98,14 @@
             }
 
             let logouttimeout = document.getElementById('logout-timeout'),
-                seconds = 0, minutes = 15,
+                minutes = 29, seconds = 59,
                 t;
             $(document).ready(function() {
                 $('body').bind('mousedown keydown', function(event) {
-                    seconds = 0;
-                    minutes = 15;
+                    minutes = 29;
+                    seconds = 59;
+                    logouttimeout.textContent = (minutes ? (minutes > 9 ? minutes : "0" + minutes) : "00") + ":" +
+                        (seconds > 9 ? seconds : "0" + seconds);
                 });
             });
             $(".showloading").click(function() {

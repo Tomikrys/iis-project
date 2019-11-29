@@ -162,10 +162,14 @@ class TournamentController extends AbstractController
 
         // Zpracování add formuláře.
         $formedit->handleRequest($request);
-        if ($formedit->isSubmitted() && $formedit->isValid()) {
-            $this->tournamentRepository->save($tournament);
-            $this->addFlash('success', 'Turnaj \'' . $tournament->getName() . '\' byl úspěšně editován.');
-            return $this->redirect($this->generateUrl('/bring_me_back'));
+        if ($formedit->isSubmitted()) {
+            if ($formedit->isValid()) {
+                $this->tournamentRepository->save($tournament);
+                $this->addFlash('success', 'Turnaj \'' . $tournament->getName() . '\' byl úspěšně editován.');
+                return $this->redirect($this->generateUrl('/bring_me_back'));
+            } else {
+                $this->addFlash('error', 'Turnaj nemohl být editován, špatně vyplněný formulář.');
+            }
         }
 
         return $this->render('pages/tables/edit.html.twig', array('title' => $title, 'formedit' => $formedit->createView()));
@@ -240,14 +244,18 @@ class TournamentController extends AbstractController
 
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
-        if ($formadd->isSubmitted() && $formadd->isValid()) {
-            // sic je tady getName, tak do name jsem výše uložil ID toho hráča, takže se hledá podle ID, sorry.
-            $team = $this->getDoctrine()->getRepository(Team::class)->find($add_team->getName());
-            $tournament->addTeam($team);
-            $this->getDoctrine()->getManager()->persist($tournament);
-            $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně  do turnaje \'' . $tournament->getName() . '\'.');
-            return $this->redirect($request->getUri());
+        if ($formadd->isSubmitted()) {
+            if ($formadd->isValid()) {
+                // sic je tady getName, tak do name jsem výše uložil ID toho hráča, takže se hledá podle ID, sorry.
+                $team = $this->getDoctrine()->getRepository(Team::class)->find($add_team->getName());
+                $tournament->addTeam($team);
+                $this->getDoctrine()->getManager()->persist($tournament);
+                $this->getDoctrine()->getManager()->flush();
+                $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně přidán do turnaje \'' . $tournament->getName() . '\'.');
+                return $this->redirect($request->getUri());
+            } else {
+                $this->addFlash('error', 'Tým nemohl být přidán, špatně vyplněný formulář.');
+            }
         }
 
         return $this->render('pages/details/tournament.html.twig', array('title' => $title,
@@ -294,11 +302,15 @@ class TournamentController extends AbstractController
 
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
-        if ($formadd->isSubmitted() && $formadd->isValid()) {
-            $new_tournament->setAdmin($this->getUser());
-            $this->tournamentRepository->save($new_tournament);
-            $this->addFlash('success', 'Turnaj \'' . $new_tournament->getName() . '\' byl úspěšně přidán.');
-            return $this->redirect($request->getUri());
+        if ($formadd->isSubmitted()) {
+            if ($formadd->isValid()) {
+                $new_tournament->setAdmin($this->getUser());
+                $this->tournamentRepository->save($new_tournament);
+                $this->addFlash('success', 'Turnaj \'' . $new_tournament->getName() . '\' byl úspěšně přidán.');
+                return $this->redirect($request->getUri());
+            } else {
+                $this->addFlash('error', 'Turnaj nemohl být přidán, špatně vyplněný formulář.');
+            }
         }
 
         return $this->render('pages/tables/pages/tournaments.html.twig', array('table_name' => $table_name,

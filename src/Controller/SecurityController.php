@@ -130,23 +130,26 @@ class SecurityController extends AbstractController
 
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
-        if ($formadd->isSubmitted() && $formadd->isValid()) {
-            $user->setRoles(["ROLE_CAPTAIN"]);
-            $user->setPassword($this->passwordEncoder->encodePassword(
-                $user,
-                $user->getPassword()
-            ));
-            try {
-                $this->userRepository->save($user);
-            } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Uživatel s emailovou adresou \'' . $user->getEmail() . '\' již existuje.');
-                return $this->redirect($this->generateUrl('app_register'));
+        if ($formadd->isSubmitted()) {
+            if ($formadd->isValid()) {
+                $user->setRoles(["ROLE_CAPTAIN"]);
+                $user->setPassword($this->passwordEncoder->encodePassword(
+                    $user,
+                    $user->getPassword()
+                ));
+                try {
+                    $this->userRepository->save($user);
+                } catch (UniqueConstraintViolationException $e) {
+                    $this->addFlash('error', 'Uživatel s emailovou adresou \'' . $user->getEmail() . '\' již existuje.');
+                    return $this->redirect($this->generateUrl('app_register'));
+                }
+                $this->addFlash('success', 'Uživatel \'' . $user->getEmail() . '\' byl úspěšně přidán.');
+                $this->addFlash('info', 'Prosím, přihlaste se.');
+                return $this->redirect($this->generateUrl('app_login'));
+            } else {
+                $this->addFlash('error', 'Uživatel nemohl být přidán, špatně vyplněný formulář.');
             }
-            $this->addFlash('success', 'Uživatel \'' . $user->getEmail() . '\' byl úspěšně přidán.');
-            $this->addFlash('info', 'Prosím, přihlaste se.');
-            return $this->redirect($this->generateUrl('app_login'));
         }
-
         return $this->render('security/register.html.twig', array('title' => $title, 'formadd' => $formadd->createView()));
     }
 
@@ -289,12 +292,16 @@ class SecurityController extends AbstractController
         $tournament = new Tournament();
         $tournament_form = $this->make_tournament_form($tournament);
         $tournament_form->handleRequest($request);
-        if ($tournament_form->isSubmitted() && $tournament_form->isValid()) {
-            $tournament->setAdmin($this->getUser());
-            $this->getDoctrine()->getManager()->persist($tournament);
-            $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Turnaj \'' . $tournament->getName() . '\' byl úspěšně vytvořen.');
-            return $this->redirect('/bring_me_back');
+        if ($tournament_form->isSubmitted()) {
+            if ($tournament_form->isValid()) {
+                $tournament->setAdmin($this->getUser());
+                $this->getDoctrine()->getManager()->persist($tournament);
+                $this->getDoctrine()->getManager()->flush();
+                $this->addFlash('success', 'Turnaj \'' . $tournament->getName() . '\' byl úspěšně vytvořen.');
+                return $this->redirect('/bring_me_back');
+            } else {
+                $this->addFlash('error', 'Turnaj nemohl být přidán, špatně vyplněný formulář.');
+            }
         }
         return new Response();
     }
@@ -331,12 +338,16 @@ class SecurityController extends AbstractController
         $team = new Team();
         $team_form = $this->make_team_form($team);
         $team_form->handleRequest($request);
-        if ($team_form->isSubmitted() && $team_form->isValid()) {
-            $team->setAdmin($this->getUser());
-            $this->getDoctrine()->getManager()->persist($team);
-            $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně vytvořen.');
-            return $this->redirect("/bring_me_back");
+        if ($team_form->isSubmitted()) {
+            if ($team_form->isValid()) {
+                $team->setAdmin($this->getUser());
+                $this->getDoctrine()->getManager()->persist($team);
+                $this->getDoctrine()->getManager()->flush();
+                $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně vytvořen.');
+                return $this->redirect("/bring_me_back");
+            } else {
+                $this->addFlash('error', 'Tým nemohl být přidán, špatně vyplněný formulář.');
+            }
         }
         return new Response();
     }
@@ -392,13 +403,17 @@ class SecurityController extends AbstractController
         $player = new Player();
         $player_form = $this->make_player_form($player);
         $player_form->handleRequest($request);
-        if ($player_form->isSubmitted() && $player_form->isValid()) {
-            $player->setAdmin($this->getUser());
-            $this->getDoctrine()->getManager()->persist($player);
-            $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně vytvořen.');
-            return $this->redirect("/bring_me_back");
-        }
+            if ($player_form->isSubmitted()) {
+                if ($player_form->isValid()) {
+                    $player->setAdmin($this->getUser());
+                    $this->getDoctrine()->getManager()->persist($player);
+                    $this->getDoctrine()->getManager()->flush();
+                    $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně vytvořen.');
+                    return $this->redirect("/bring_me_back");
+                } else {
+                    $this->addFlash('error', 'Hráč nemohl být přidán, špatně vyplněný formulář.');
+                }
+            }
         return new Response();
     }
 
@@ -482,14 +497,18 @@ class SecurityController extends AbstractController
 
         // Zpracování add formuláře.
         $formeditpassword->handleRequest($request);
-        if ($formeditpassword->isSubmitted() && $formeditpassword->isValid()) {
-            $user->setPassword($this->passwordEncoder->encodePassword(
-                $user,
-                $user->getPassword()
-            ));
-            $this->userRepository->save($user);
-            $this->addFlash('success', 'Uživateli \'' . $user->getEmail() . '\' bylo úspěšně změněno heslo.');
-            return $this->redirect($request->getUri());
+        if ($formeditpassword->isSubmitted()) {
+            if ($formeditpassword->isValid()) {
+                $user->setPassword($this->passwordEncoder->encodePassword(
+                    $user,
+                    $user->getPassword()
+                ));
+                $this->userRepository->save($user);
+                $this->addFlash('success', 'Uživateli \'' . $user->getEmail() . '\' bylo úspěšně změněno heslo.');
+                return $this->redirect($request->getUri());
+            } else {
+                $this->addFlash('error', 'Heslo nemohlo být změneno, špatně vyplněný formulář.');
+            }
         }
 
         $admin = null;

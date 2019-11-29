@@ -134,12 +134,15 @@ class TeamController extends AbstractController
 
         // Zpracování add formuláře.
         $formedit->handleRequest($request);
-        if ($formedit->isSubmitted() && $formedit->isValid()) {
-            $this->teamRepository->save($team);
-            $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně editován.');
-            return $this->redirect($this->generateUrl('/bring_me_back'));
+        if ($formedit->isSubmitted()) {
+            if ($formedit->isValid()) {
+                $this->teamRepository->save($team);
+                $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně editován.');
+                return $this->redirect($this->generateUrl('/bring_me_back'));
+            } else {
+                $this->addFlash('error', 'Tým nemohl být editován, špatně vyplněný formulář.');
+            }
         }
-
         return $this->render('pages/tables/edit.html.twig', array('title' => $title, 'formedit' => $formedit->createView()));
     }
 
@@ -204,14 +207,18 @@ class TeamController extends AbstractController
 
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
-        if ($formadd->isSubmitted() && $formadd->isValid()) {
-            // sic je tady getName, tak do name jsem výše uložil ID toho hráča, takže se hledá podle ID, sorry.
-            $player = $this->getDoctrine()->getRepository(Player::class)->find($add_player->getName());
-            $team->addPlayer($player);
-            $this->getDoctrine()->getManager()->persist($team);
-            $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně  do týmu \'' . $team->getName() . '\'.');
-            return $this->redirect($request->getUri());
+        if ($formadd->isSubmitted()) {
+            if ($formadd->isValid()) {
+                // sic je tady getName, tak do name jsem výše uložil ID toho hráča, takže se hledá podle ID, sorry.
+                $player = $this->getDoctrine()->getRepository(Player::class)->find($add_player->getName());
+                $team->addPlayer($player);
+                $this->getDoctrine()->getManager()->persist($team);
+                $this->getDoctrine()->getManager()->flush();
+                $this->addFlash('success', 'Hráč \'' . $player->getName() . '\' byl úspěšně  do týmu \'' . $team->getName() . '\'.');
+                return $this->redirect($request->getUri());
+            } else {
+                $this->addFlash('error', 'Hráč nemohl být přidán, špatně vyplněný formulář.');
+            }
         }
 
         return $this->render('pages/details/team.html.twig', array('title' => $title, 'team' => $team,
@@ -253,11 +260,15 @@ class TeamController extends AbstractController
 
         // Zpracování add formuláře.
         $formadd->handleRequest($request);
-        if ($formadd->isSubmitted() && $formadd->isValid()) {
-            $new_team->setAdmin($this->getUser());
-            $this->teamRepository->save($new_team);
-            $this->addFlash('success', 'Tým \'' . $new_team->getName() . '\' byl úspěšně přidán.');
-            return $this->redirect($request->getUri());
+        if ($formadd->isSubmitted()) {
+            if ($formadd->isValid()) {
+                $new_team->setAdmin($this->getUser());
+                $this->teamRepository->save($new_team);
+                $this->addFlash('success', 'Tým \'' . $new_team->getName() . '\' byl úspěšně přidán.');
+                return $this->redirect($request->getUri());
+            } else {
+                $this->addFlash('error', 'Tým nemohl být přidán, špatně vyplněný formulář.');
+            }
         }
 
         return $this->render('pages/tables/pages/teams.html.twig', array('table_name' => $table_name, 'formadd' => $formadd->createView(), 'table' => $table));

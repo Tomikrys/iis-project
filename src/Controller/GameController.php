@@ -41,6 +41,9 @@ class GameController extends AbstractController {
         $entityManager->flush();
 
         $this->check_win($game, $data);
+        dump($game);
+        dump($data);
+
 
         $response = new Response();
         $response->send();

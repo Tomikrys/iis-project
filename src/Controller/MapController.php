@@ -96,6 +96,8 @@ class MapController extends TournamentController {
             if ($i % 2 ==  0) {
                 $game = new Game();
                 $game->setTeam1($team);
+                $entityManager->persist($game);
+                $entityManager->flush();
             } else {
                 $game->setTeam2($team);
                 $game->setTournament($tournament);
@@ -152,6 +154,8 @@ class MapController extends TournamentController {
                 } else {
                     $game->setNextGame($newGame);
                     $game->setFirstInNextGame(false);
+                    $entityManager->persist($game);
+                    $entityManager->flush();
                 }
             }
             $i++;
@@ -190,6 +194,8 @@ class MapController extends TournamentController {
         $response->send();
         return $response;
     }
+
+
 
 
     /**

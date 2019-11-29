@@ -2,12 +2,18 @@
     flex: 1 0 auto;
     border-radius: 2px 25px 225px 80px/2px 578px 25px 15px;
 }
+
+.modal-content img {
+    border: 2px solid #333;
+    border-radius: 5px 5px 5px 5px/25px 25px 25px 5px;
+}
+
 .footer {
     flex-shrink: 0;
 }
 
-body {
-'Shadows Into Light Two', cursive !important;
+body, button {
+    font-family: 'Mali', cursive;
 }
 
 nav .navbar-brand {
@@ -19,6 +25,7 @@ nav a {
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, nav a {
-    font-family: 'Amatic SC', bold !important;
+    /*font-family: 'Amatic SC', bold !important;*/
+    font-family: 'Pangolin', cursive !important;
 }
 
