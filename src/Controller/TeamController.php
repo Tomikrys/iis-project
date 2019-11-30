@@ -68,7 +68,9 @@ class TeamController extends AbstractController
      * funkce k odstranění týmu z databáze
      */
     public function delete(Request $request, $id) {
-        $team = $this->getDoctrine()->getRepository(Player::class)->find($id);
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        dump($team);
+        dump($id);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($team);
         $entityManager->flush();
