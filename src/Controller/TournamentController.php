@@ -126,14 +126,15 @@ class TournamentController extends AbstractController
             $this->addFlash('error', 'Turnaj s id \'' . $tournament_id . '\' neexistuje.');
             return $this->redirect($this->generateUrl('/bring_me_back'));
         }
-        if ($this->getUser()->getEmail() != $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN")
-            or $this->getUser()->getEmail() != $team->getAdminString()) {
+        if ($this->getUser()->getEmail() != $tournament->getAdminString() and !($this->getUser()->hasRole("ROLE_ADMIN"))
+            and $this->getUser()->getEmail() != $team->getAdminString()) {
             $this->addFlash('error', 'Tým \'' . $team->getName() . '\' nemůžete odebrat z turnaje \'' . $tournament->getName() . '\'.');
             return $this->redirect($this->generateUrl('/bring_me_back'));
         }
         $tournament->removeTeam($team);
         $this->getDoctrine()->getManager()->persist($tournament);
         $this->getDoctrine()->getManager()->persist($team);
+        $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně odebrán z turnaje \'' . $tournament->getName() . '\'.');
         $this->getDoctrine()->getManager()->flush();
         return new Response();
     }

@@ -63,6 +63,10 @@ class Game
      */
     private $NextGame;
 
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    private $type;
 
     public function getId(): ?int
     {
@@ -185,4 +189,42 @@ class Game
         return $this;
     }
 
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setType(int $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getWinner(): ?team
+    {
+        $points_team1 = $this->getPointsTeam1();
+        $points_team2 = $this->getPointsTeam2();
+
+        if (!in_array(" ", $points_team1) && !in_array(" ", $points_team2)) {
+            $team1_score = 0;
+            $team2_score = 0;
+            foreach (array_combine($points_team1, $points_team2) as $points1 => $points2) {
+                if ($points1 > $points2) {
+                    $team1_score++;
+                } else if ($points1 < $points2) {
+                    $team2_score++;
+                } // todo else remiza
+            }
+
+            if ($team1_score > $team2_score) {
+                return $this->getTeam1();
+            } else if ($team1_score < $team2_score) {
+                return $this->getTeam2();
+            } // todo else remize
+            return null;
+        } else {
+            return null;
+        }
+    }
 }

@@ -42,7 +42,7 @@
     </style>
 {% endblock %}
 {% block body %}
-    <h1>Pavouk pro turnaj: {{ tournament.name }}</h1>
+<h1>{% if type == "map" %}Pavouk{% else %}Rozstřel{% endif %} pro turnaj: <a href="/tournaments/detail/{{ tournament.id }}">{{ tournament.name }}</a></h1>
 
 <div id="map" class="flex-nowrap align-items-center">
     <!--coutery pro tabindex -->
@@ -52,7 +52,7 @@
     {% set round = 1 %}
 
     <div class="row">
-        <h3>{{ round }}. kolo</h3>
+        <h3>{{ round }}. {% if type == "map" %}kolo{% else %}skupina{% endif %}</h3>
     </div>
     <div class="row">
         {% for game in games %}
@@ -60,7 +60,7 @@
         {% if round != game.round %}
     </div>
     <div class="row">
-        <h3>{{ round + 1 }}. kolo</h3>
+        <h3>{{ round + 1 }}. {% if type == "map" %}kolo{% else %}skupina{% endif %}</h3>
     </div>
     <div class="row">
         {% set round = game.round %}

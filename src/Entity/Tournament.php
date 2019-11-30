@@ -168,6 +168,15 @@ class Tournament
         return $array_teams;
     }
 
+    /**
+     * @return array
+     */
+    public function getOrderedTeams(): array {
+        $array_teams = iterator_to_array($this->teams);
+        usort($array_teams, function($a, $b) {return $a->getExp() - $b->getExp();});
+        return $array_teams;
+    }
+
     public function addTeam(Team $team): self
     {
         if (!$this->teams->contains($team)) {

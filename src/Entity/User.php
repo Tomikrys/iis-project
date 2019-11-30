@@ -26,9 +26,8 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\Regex(
-     *     pattern="/^(\+[0-9]{2,3})? ?[1-9][0-9]{2} ?[0-9]{3} ?[0-9]{3}$/",
-     *     message="Telefonní číslo '{{ value }}' je ve špatném formátu."
+     * @Assert\Email(
+     *     message = "Email '{{ value }}' je ve špatném formátu."
      * )
      */
     private $email;

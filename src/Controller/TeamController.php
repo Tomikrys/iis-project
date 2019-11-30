@@ -263,6 +263,7 @@ class TeamController extends AbstractController
         if ($formadd->isSubmitted()) {
             if ($formadd->isValid()) {
                 $new_team->setAdmin($this->getUser());
+                $new_team->setExp(0);
                 $this->teamRepository->save($new_team);
                 $this->addFlash('success', 'Tým \'' . $new_team->getName() . '\' byl úspěšně přidán.');
                 return $this->redirect($request->getUri());

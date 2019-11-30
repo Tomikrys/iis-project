@@ -5,9 +5,18 @@
     <h1>Detail turnaje: {{ tournament.name }}</h1>
 
     <h2>Pavouk</h2>
-    <a href="/tournaments/detail/{{ tournament.id }}/map" class="btn btn-success">Zobrazit pavouka</a>
+
+    <a href="/tournaments/detail/{{ tournament.id }}/ordering" class="mb-1 btn btn-success">Zobrazit rozstřel</a>
     {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
-    <button onclick="generate_games({{ tournament.id }})" class="btn btn-danger">Generovat pavouka</button>
+        <button onclick="generate_games_ordering({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat rozstřel</button>
+    {% endif %}
+
+    <br>
+
+    <a href="/tournaments/detail/{{ tournament.id }}/map" class="mb-1 btn btn-success">Zobrazit pavouka</a>
+    {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
+        <button onclick="generate_games_map({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat pavouka náhodně</button>
+        <button onclick="generate_games_map_from_ordering({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat pavouka na základě rozstřelu</button>
     {% endif %}
 
     <h2>Datum</h2>
@@ -36,23 +45,61 @@
 
 {% block javascripts %}
     <script>
-        function generate_games(id) {
+        function generate_games_map(id) {
             // generating games
             $("#loading").modal("show");
-            const url = '/tournaments/detail/' + id + '/generate';
+            const url = '/tournaments/detail/' + id + '/generate/1';
             try {
                 const response = fetch(url, {
                     method: 'POST'
-                //});
-                //}).then(res => window.location.reload());
-                }).then($("#loading").modal("hide"));
-                console.log('Success');
+                    //});
+                    //}).then(res => window.location.reload());
+                }).then(res => window.location.reload());
+                $("#loading").modal("hide");
             } catch (error) {
                 console.error('Error:', error);
             }
             // TODO nezmizi
             $("#loading").modal("hide");
         }
+
+        function generate_games_map_from_ordering(id) {
+            // generating games
+            $("#loading").modal("show");
+            const url = '/tournaments/detail/' + id + '/generate/2';
+            try {
+                const response = fetch(url, {
+                    method: 'POST'
+                    //});
+                    //}).then(res => window.location.reload());
+                }).then(res => window.location.reload());
+                $("#loading").modal("hide");
+            } catch (error) {
+                console.error('Error:', error);
+            }
+            // TODO nezmizi
+            $("#loading").modal("hide");
+        }
+
+
+        function generate_games_ordering(id) {
+            // generating games
+            $("#loading").modal("show");
+            const url = '/tournaments/detail/' + id + '/generate_ordering';
+            try {
+                const response = fetch(url, {
+                    method: 'POST'
+                    //});
+                    //}).then(res => window.location.reload());
+                }).then(res => window.location.reload());
+                $("#loading").modal("hide");
+            } catch (error) {
+                console.error('Error:', error);
+            }
+            // TODO nezmizi
+            $("#loading").modal("hide");
+        }
+
 
         const table = document.getElementById('table');
         if (table) {

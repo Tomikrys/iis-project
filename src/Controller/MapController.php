@@ -20,6 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
+
+
 /**
  * Class MapController
  * @package App\Controller
@@ -27,6 +30,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * kontroler pro správu pavouka
  */
 class MapController extends TournamentController {
+    const SPIDER = 1;
+    const ORDERING = 2;
 
     /**
      * @param $tournament
@@ -34,21 +39,27 @@ class MapController extends TournamentController {
      *
      * funkce pro vytvoření prázdného prvotního kola
      */
-    public function make_first ($tournament) {
+    public function make_first ($tournament, $type) {
         $entityManager = $this->getDoctrine()->getManager();
-        $teams = $tournament->getShuffledTeams();
+
+        $teams = [];
+        if ($type == self::ORDERING) {
+            $teams = $tournament->getOrderedTeams();
+        }
+        if ($type == self::SPIDER) {
+            $teams = $tournament->getShuffledTeams();
+        }
+
         $teams_count = count($teams);
         // vztvoří nulté hry pro nejslabší, tak aby v prvním kole bylo 2^n týmů
         $square = [2, 4, 8, 16, 32, 64];
         $i = 0;
         $game = null;
         $games = [];
-        dump($teams_count);
         $lvl = 0;
         while (!in_array($teams_count, $square)) {
             $lvl = 1;
             $team = array_pop($teams);
-            dump($team);
             if ($i % 2 ==  0) {
                 $game = new Game();
                 $game->setTeam1($team);
@@ -64,7 +75,7 @@ class MapController extends TournamentController {
                 $game->setPointsTeam1($array);
                 $game->setPointsTeam2($array);
 
-                dump($game);
+                $game->setType(self::SPIDER);
                 $entityManager->persist($game);
                 $entityManager->flush();
 
@@ -78,6 +89,7 @@ class MapController extends TournamentController {
                 $game->setFirstInNextGame(false);
                 $nextgame->setPointsTeam1($array);
                 $nextgame->setPointsTeam2($array);
+                $nextgame->setType(self::SPIDER);
                 $entityManager->persist($nextgame);
                 $entityManager->flush();
                 array_push($games, $nextgame);
@@ -96,8 +108,7 @@ class MapController extends TournamentController {
             if ($i % 2 ==  0) {
                 $game = new Game();
                 $game->setTeam1($team);
-                $entityManager->persist($game);
-                $entityManager->flush();
+                $game->setType(self::SPIDER);
             } else {
                 $game->setTeam2($team);
                 $game->setTournament($tournament);
@@ -110,6 +121,7 @@ class MapController extends TournamentController {
                 $game->setPointsTeam1($array);
                 $game->setPointsTeam2($array);
 
+                $game->setType(self::SPIDER);
                 $entityManager->persist($game);
                 $entityManager->flush();
 
@@ -148,12 +160,14 @@ class MapController extends TournamentController {
                     $newGame->setPointsTeam1($array);
                     $newGame->setPointsTeam2($array);
 
+                    $newGame->setType(self::SPIDER);
                     $entityManager->persist($newGame);
                     $entityManager->flush();
                     array_push($next_games, $newGame);
                 } else {
                     $game->setNextGame($newGame);
                     $game->setFirstInNextGame(false);
+                    $game->setType(self::SPIDER);
                     $entityManager->persist($game);
                     $entityManager->flush();
                 }
@@ -165,18 +179,8 @@ class MapController extends TournamentController {
         }
     }
 
-
-    /**
-     * @param Request $request
-     * @param $id
-     * @return Response
-     * @Route("/tournaments/detail/{id}/generate", name="generate", methods={"GET", "POST"})
-     *
-     * funkce pro generování celého pavouka
-     */
-    public function generate(Request $request, $id) {
-        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
-        $games = $tournament->getGames();
+    public function clear_games_in_tournament($tournament) {
+        $games = array_filter(iterator_to_array($tournament->getGames()), array($this, "filter_spider"));
         $entityManager = $this->getDoctrine()->getManager();
         // odstranění případných her co by dělaly binec
         if ($games != []) {
@@ -185,17 +189,28 @@ class MapController extends TournamentController {
                 $entityManager->flush();
             }
         }
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return Response
+     * @Route("/tournaments/detail/{id}/generate/{type}", name="generate", methods={"GET", "POST"})
+     *
+     * funkce pro generování celého pavouka
+     */
+    public function generate(Request $request, $id, $type) {
+        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        $this->clear_games_in_tournament($tournament);
 
         $lvl = null;
-        list($games,$lvl) = $this->make_first($tournament);
+        list($games,$lvl) = $this->make_first($tournament, $type);
         $this->make_rest($tournament, $games, $lvl+1);
 
         $response = new Response();
         $response->send();
         return $response;
     }
-
-
 
 
     /**
@@ -208,9 +223,105 @@ class MapController extends TournamentController {
      */
     public function map(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
-        $games = iterator_to_array($tournament->getGames());
+        $games = array_filter(iterator_to_array($tournament->getGames()), array($this, "filter_spider"));
+        // se5ayen9 podle kola
         usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
 
-        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games));
+        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games, 'type' => "map"));
+    }
+
+    ///ORDERING
+
+    public static $map_teams = [];
+
+    static function filter_ordering($var) {
+        return $var->getType() == self::ORDERING;
+    }
+
+    static function filter_spider($var) {
+        return $var->getType() == self::SPIDER;
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return Response
+     * @Route("/tournaments/detail/{id}/ordering", name="ordering", methods={"GET", "POST"})
+     *
+     * funkce pro zobrazení pavouka
+     */
+    public function ordering(Request $request, $id) {
+        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        $games = array_filter(iterator_to_array($tournament->getGames()),  array($this, "filter_ordering"));
+        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games, 'type' => "ordering"));
+    }
+
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return Response
+     * @Route("/tournaments/detail/{id}/generate_ordering", name="generate_ordering", methods={"GET", "POST"})
+     *
+     * funkce pro generování turnaje všichni proti všem
+     */
+    public function generate_ordering(Request $request, $id) {
+        $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
+        $games = array_filter(iterator_to_array($tournament->getGames()), array($this, "filter_ordering"));
+        $entityManager = $this->getDoctrine()->getManager();
+        // odstranění případných her co by dělaly binec
+        if ($games != []) {
+            foreach ($games as $game) {
+                $entityManager->remove($game);
+                $entityManager->flush();
+            }
+        }
+
+        $this->make_ordering($tournament);
+
+        $response = new Response();
+        $response->send();
+        return $response;
+    }
+
+    /**
+     * @param $tournament
+     */
+    public function make_ordering($tournament) {
+        $teams = $tournament->getShuffledTeams();
+        $teams_count = count($teams);
+        $group1 = array_slice($teams, 0, $teams_count / 2);
+        $group2 = array_slice($teams, $teams_count / 2);
+        $this->generate_all_vs_all($group1, $tournament, 1);
+        $this->generate_all_vs_all($group2, $tournament, 2);
+    }
+
+    /**
+     * @param $teams
+     * @param $tournament
+     */
+    public function generate_all_vs_all($teams, $tournament, $lvl) {
+        $entityManager = $this->getDoctrine()->getManager();
+        $teams_count = count($teams);
+
+        for ($i = 0; $i < $teams_count; $i++) {
+            for ($j = $i+1; $j < $teams_count; $j++) {
+                $newGame = new Game();
+                $newGame->setTournament($tournament);
+                $newGame->setRound($lvl);
+                $newGame->setTeam1($teams[$i]);
+                $newGame->setTeam2($teams[$j]);
+                $array = [];
+                for ($k = 1; $k <= $tournament->getPlaysInGame(); $k++) {
+                    array_push($array, " ");
+                }
+                $newGame->setPointsTeam1($array);
+                $newGame->setPointsTeam2($array);
+
+                $newGame->setType(self::ORDERING);
+                $entityManager->persist($newGame);
+                $entityManager->flush();
+            }
+        }
     }
 }

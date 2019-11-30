@@ -42,6 +42,11 @@ class Team
      */
     private $admin;
 
+    /**
+     * @ORM\Column(type="integer", options={"default":0})
+     */
+    private $exp;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
@@ -138,6 +143,18 @@ class Team
     public function setAdmin(?User $admin): self
     {
         $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getExp(): ?int
+    {
+        return $this->exp;
+    }
+
+    public function setExp(?int $exp): self
+    {
+        $this->exp = $exp;
 
         return $this;
     }
