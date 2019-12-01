@@ -90,10 +90,10 @@ class TournamentController extends AbstractController
     public function delete(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
 
-        dump($this->getUser());
-        dump($tournament->getAdminString());
+        //dump($this->getUser());
+        //dump($tournament->getAdminString());
         if ($this->getUser() != $tournament->getAdminString()) {
-            dump($tournament);
+            //dump($tournament);
             exit;
         }
         exit;

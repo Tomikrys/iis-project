@@ -53,7 +53,7 @@ class MapController extends TournamentController {
         $j = count($group2);
         for ($i = 0; $i < count($group1); $i++) {
             $j--;
-            dump(array($i, $j));
+            //dump(array($i, $j));
             if ($i % 2 == 0) {
                 array_unshift($sorted_teams, $group1[$i]);
                 array_unshift($sorted_teams, $group2[$j]);
@@ -89,7 +89,7 @@ class MapController extends TournamentController {
 
             //// TODO ořez na 8 týmů
             $teams = array_slice($teams, 0, 8);
-            dump($teams);
+            //dump($teams);
             ////// mám týmy seřazený podle exp
 
 
@@ -204,7 +204,7 @@ class MapController extends TournamentController {
         } else {
             $games = $games_round2;
         }
-        dump(array("games", $games));
+        //dump(array("games", $games));
         $this->add_order_to_games($games);
         return array($games, $lvl);
     }
@@ -317,7 +317,7 @@ class MapController extends TournamentController {
                 "PointsTeam1" => $game->getPointsTeam1(), "PointsTeam2" => $game->getPointsTeam2(),
                 "round" => $game->getRound(), "DisplayOrder" => $game->getDisplayOrder()]);
         }
-        dump($games);
+        //dump($games);
         // se5ayen9 podle kola
         //usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
         $sort = array();
@@ -327,7 +327,7 @@ class MapController extends TournamentController {
         }
         array_multisort($sort['round'], SORT_ASC, $sort['DisplayOrder'], SORT_ASC,$games);
 
-        dump($games);
+        //dump($games);
         $admin = $tournament->getAdminString();
         $group1 = [];
         $group2 = [];
