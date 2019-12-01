@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Game;
 use App\Entity\Team;
 use App\Entity\Tournament;
+use App\Entity\Exp;
 use App\Repository\TournamentRepository;
 use Psr\Container\ContainerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -33,6 +34,32 @@ class MapController extends TournamentController {
     const SPIDER = 1;
     const ORDERING = 2;
 
+    public function sort_teams_by_groups($teams, $slice_count) {
+//        $teams_count = count($teams);
+//        $group1 = array_slice($teams, 0, $teams_count / 2);
+//        $group2 = array_slice($teams, $teams_count / 2);
+        dump($slice_count);
+        $group1 = [];
+        $group2 = [];
+        for ($i = 0; $i < count($teams); $i++) {
+            if ($i % 2 == 0) {
+                array_push($group1, $teams[$i]);
+            } else {
+                array_push($group2, $teams[$i]);
+            }
+        }
+
+        $sorted_teams = [];
+        $j = count($group2);
+        for ($i = 0; $i < count($group1); $i++) {
+            $j--;
+            dump(array($i, $j));
+            array_push($sorted_teams, $group1[$i]);
+            array_push($sorted_teams, $group2[$j]);
+        }
+        return $sorted_teams;
+    }
+
     /**
      * @param $tournament
      * @return array
@@ -43,20 +70,40 @@ class MapController extends TournamentController {
         $entityManager = $this->getDoctrine()->getManager();
 
         $teams = [];
+        $teams_count = count($teams);
+        // vztvoří nulté hry pro nejslabší, tak aby v prvním kole bylo 2^n týmů
+        $square = [0, 2, 4, 8, 16, 32, 64];
         if ($type == self::ORDERING) {
-            $teams = $tournament->getOrderedTeams();
+            $teams = iterator_to_array($tournament->getTeams());
+            $this->tournament = $tournament;
+            // sorting podle výsledků
+            usort($teams, function($a, $b) {
+                $tournament = $this->tournament;
+                return $this->get_exp($tournament, $a) - $this->get_exp($tournament, $b);
+            });
+            dump($teams);
+
+            // sorting aby to udělalo správně pavouka
+            $slice_count = 0;
+            $teams_count = count($teams);
+            while (!in_array($teams_count, $square)) {
+                $slice_count++;
+                $teams_count--;
+            }
+            $teams = $this->sort_teams_by_groups($teams, $slice_count);
+
         }
         if ($type == self::SPIDER) {
             $teams = $tournament->getShuffledTeams();
         }
 
-        $teams_count = count($teams);
-        // vztvoří nulté hry pro nejslabší, tak aby v prvním kole bylo 2^n týmů
-        $square = [2, 4, 8, 16, 32, 64];
+
         $i = 0;
         $game = null;
-        $games = [];
+        $games_round1 = [];
         $lvl = 0;
+
+        $teams_count = count($teams);
         while (!in_array($teams_count, $square)) {
             $lvl = 1;
             $team = array_pop($teams);
@@ -92,7 +139,8 @@ class MapController extends TournamentController {
                 $nextgame->setType(self::SPIDER);
                 $entityManager->persist($nextgame);
                 $entityManager->flush();
-                array_push($games, $nextgame);
+                //array_splice( $games_round1, count($games_round1)/2, 0, array($nextgame));
+                array_push($games_round1, $nextgame);
 
                 $teams_count--;
             }
@@ -103,6 +151,7 @@ class MapController extends TournamentController {
         $lvl++;
         // pole přidaných her
         $game = null;
+        $games_round2 = [];
         $i = 0;
         foreach ($teams as $team) {
             if ($i % 2 ==  0) {
@@ -126,10 +175,26 @@ class MapController extends TournamentController {
                 $entityManager->flush();
 
                 // nevím proč, ale nemůžu si to vythánout pomocí $tournament->getGames() :(
-                array_push($games, $game);
+                array_push($games_round2, $game);
             }
             $i++;
         }
+        
+        if ($games_round1 != []) {
+            $games_round1_count = count($games_round1);
+            $games_round1_group1 = array_slice($games_round1, 0, $games_round1_count / 2);
+            $games_round1_group2 = array_slice($games_round1, $games_round1_count / 2);
+
+            $games_round2_count = count($games_round2);
+            $games_round2_group1 = array_slice($games_round2, 0, $games_round2_count / 2);
+            $games_round2_group2 = array_slice($games_round2, $games_round2_count / 2);
+            //dump(array($games_round2_group1, $games_round1_group1, $games_round1_group2, $games_round2_group2));
+            $games = array_merge($games_round2_group1, $games_round1_group1, $games_round1_group2, $games_round2_group2);
+            //$games = array_merge($games_round1, $games_round2);
+        } else {
+            $games = $games_round2;
+        }
+        dump(array("games", $games));
         return array($games, $lvl);
     }
 
@@ -226,8 +291,11 @@ class MapController extends TournamentController {
         $games = array_filter(iterator_to_array($tournament->getGames()), array($this, "filter_spider"));
         // se5ayen9 podle kola
         usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
-
-        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games, 'type' => "map"));
+        $admin = $tournament->getAdminString();
+        $group1 = [];
+        $group2 = [];
+        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games,
+            'type' => "map", 'admin' => $admin, 'group1' => $group1, 'group2' => $group2));
     }
 
     ///ORDERING
@@ -242,6 +310,33 @@ class MapController extends TournamentController {
         return $var->getType() == self::SPIDER;
     }
 
+    public function get_exp ($tournament, $team) {
+        $entityManager = $this->getDoctrine()->getManager();
+        $tournament_team_table = $entityManager->getRepository(Exp::class)->findAll();
+        foreach ($tournament_team_table as $tournament_team) {
+            if ($tournament_team->getTournament() === $tournament and $tournament_team->getTeam() === $team) {
+                return $tournament_team->getExp();
+            }
+        }
+        return null;
+    }
+
+    private $tournament;
+
+    public function object_to_array($data)
+    {
+        if (is_array($data) || is_object($data))
+        {
+            $result = array();
+            foreach ($data as $key => $value)
+            {
+                $result[$key] = $this->object_to_array($value);
+            }
+            return $result;
+        }
+        return $data;
+    }
+
     /**
      * @param Request $request
      * @param $id
@@ -253,7 +348,47 @@ class MapController extends TournamentController {
     public function ordering(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
         $games = array_filter(iterator_to_array($tournament->getGames()),  array($this, "filter_ordering"));
-        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games, 'type' => "ordering"));
+        $admin = $tournament->getAdminString();
+        $group1 = [];
+        $group2 = [];
+        foreach ($games as $game) {
+            $team1 = ["id" => $game->getTeam1()->getId(), "name" => $game->getTeam1()->getName(), "exps" => $this->get_exp($tournament, $game->getTeam1())];
+            $team2 = ["id" => $game->getTeam2()->getId(), "name" => $game->getTeam2()->getName(), "exps" => $this->get_exp($tournament, $game->getTeam2())];
+
+            //$team2 = array_merge(json_decode(json_encode($game->getTeam2()), true), ["exps" => $this->get_exp($tournament, $game->getTeam2())]);
+//            dump($game->getTeam1()->getId());
+//            dump($game->getTeam1()->getName());
+//            dump($team2);
+//            exit;
+            if ($game->getRound() == 1) {
+                if (!in_array($team1, $group1))
+                    array_push($group1, $team1);
+                if (!in_array($team2, $group1))
+                    array_push($group1,$team2);
+            }
+            if ($game->getRound() == 2) {
+                if (!in_array($team1, $group2))
+                    array_push($group2, $team1);
+                if (!in_array($team2, $group2))
+                    array_push($group2, $team2);
+            }
+        }
+
+        $this->tournament = $tournament;
+        usort($group1, function($b, $a) {
+            $tournament = $this->tournament;
+            return $this->get_exp($tournament, $a) - $this->get_exp($tournament, $b);
+        });
+        usort($group2, function($b, $a) {
+            $tournament = $this->tournament;
+            return $this->get_exp($tournament, $a) - $this->get_exp($tournament, $b);
+        });
+
+        // TODO delete
+//        usort($group1, function($b, $a) {return $a->getExp() - $b->getExp();});
+//        usort($group2, function($b, $a) {return $a->getExp() - $b->getExp();});
+        return $this->render('pages/map/map.html.twig', array('tournament' => $tournament,'games' => $games,
+            'type' => "ordering", 'admin' => $admin, 'group1' => $group1, 'group2' => $group2));
     }
 
 

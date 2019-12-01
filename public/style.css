@@ -12,8 +12,12 @@
     flex-shrink: 0;
 }
 
-body, button {
+body, button, input {
     font-family: 'Mali', cursive;
+}
+
+.table-nonfluid {
+    width: auto !important;
 }
 
 nav .navbar-brand {

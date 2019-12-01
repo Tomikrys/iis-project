@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Player;
 use App\Entity\Team;
 use App\Repository\TeamRepository;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -60,9 +61,11 @@ class TeamController extends AbstractController
         return $form;
     }
 
+
     /**
      * @param Request $request
      * @param $id
+     * @return Response
      * @Route("/teams/delete/{id}", methods={"DELETE"})
      *
      * funkce k odstranění týmu z databáze
@@ -72,12 +75,16 @@ class TeamController extends AbstractController
         dump($team);
         dump($id);
         $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($team);
-        $entityManager->flush();
+        try {
+            $entityManager->remove($team);
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Tým \'' . $team->getName() . '\' je již zapojen do turnajů a není možné jej odstranit.');
+            return new Response();
+        }
         // vytvoření flash oznámení
         $this->addFlash('warning', 'Tým \'' . $team->getName() . '\' byl odstraněn.');
-        $response = new Response();
-        $response->send();
+        return new Response();
     }
 
     /**

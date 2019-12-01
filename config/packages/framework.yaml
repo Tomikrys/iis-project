@@ -9,8 +9,8 @@ framework:
         handler_id: null
         cookie_secure: auto
         cookie_samesite: lax
-        # expirace session cookie - odhlášení po 30 minutách
-        cookie_lifetime: 1800
+        # expirace session cookie - odhlášení po 60 minutách i když není stránka otevřena
+        cookie_lifetime: 3600
 
     #esi: true
     #fragments: true

@@ -134,7 +134,7 @@ class TournamentController extends AbstractController
         $tournament->removeTeam($team);
         $this->getDoctrine()->getManager()->persist($tournament);
         $this->getDoctrine()->getManager()->persist($team);
-        $this->addFlash('success', 'Tým \'' . $team->getName() . '\' byl úspěšně odebrán z turnaje \'' . $tournament->getName() . '\'.');
+        $this->addFlash('warning', 'Tým \'' . $team->getName() . '\' byl úspěšně odebrán z turnaje \'' . $tournament->getName() . '\'.');
         $this->getDoctrine()->getManager()->flush();
         return new Response();
     }

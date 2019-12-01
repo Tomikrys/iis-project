@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use App\Entity\Team;
+use App\Entity\Exp;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -103,13 +104,48 @@ class GameController extends AbstractController {
         return true;
     }
 
+    public function get_tournament_team($tournament, $team){
+        $entityManager = $this->getDoctrine()->getManager();
+        $tournament_team_table = $entityManager->getRepository(Exp::class)->findAll();
+        foreach ($tournament_team_table as $tournament_team) {
+            if ($tournament_team->getTournament() === $tournament and $tournament_team->getTeam() === $team) {
+                return $tournament_team;
+            }
+        }
+        return null;
+    }
+
+    public function set_exp ($tournament, $team, $exp) {
+        $tournament_team = $this->get_tournament_team($tournament, $team);
+        if ($tournament_team == null) {
+            $tournament_team = new Exp();
+            $tournament_team->setTournament($tournament);
+            $tournament_team->setTeam($team);
+        }
+        $tournament_team->setExp($exp);
+        $this->getDoctrine()->getManager()->persist($tournament_team);
+        $this->getDoctrine()->getManager()->flush();
+    }
+
+    public function get_exp ($tournament, $team) {
+        $tournament_team = $this->get_tournament_team($tournament, $team);
+        if ($tournament_team != null) {
+            return $tournament_team->getExp();
+        }
+        return null;
+    }
+
+
     public function set_order($tournament) {
         //reset order
         $teams = $tournament->getTeams();
         foreach ($teams as $team) {
-            $team->setExp(0);
-            $this->getDoctrine()->getManager()->persist($team);
-            $this->getDoctrine()->getManager()->flush();
+            $this->set_exp($tournament, $team, 0);
+
+            //TODO smazat
+//            $team->setExp(0, $tournament->getId());
+//            $this->getDoctrine()->getManager()->persist($team);
+//            $this->getDoctrine()->getManager()->flush();
         }
 
         $games = $tournament->getGames();
@@ -117,12 +153,17 @@ class GameController extends AbstractController {
         foreach($games as $game) {
             if ($game->getType() == self::ORDERING) {
                 $winner = $game->getWinner();
-                $winner->setExp($winner->getExp()+1);
-                $this->getDoctrine()->getManager()->persist($winner);
-                $this->getDoctrine()->getManager()->flush();
+                $this->set_exp ($tournament, $winner, $this->get_exp($tournament, $winner));
+
+                //TODO smazat
+//                $winner->setExp($winner->getExp()+1);
+//                $this->getDoctrine()->getManager()->persist($winner);
+//                $this->getDoctrine()->getManager()->flush();
             }
         }
     }
+
+    private $tournament;
 
     public function prepare_to_generate_map($games) {
         $group1 = [];
@@ -143,8 +184,19 @@ class GameController extends AbstractController {
                 }
             }
         }
-        usort($group1, function($a, $b) {return $a->getExp() - $b->getExp();});
-        usort($group2, function($b, $a) {return $a->getExp() - $b->getExp();});
+        $this->tournament = $games[0]->getTournament();
+        usort($group1, function($a, $b) {
+            $tournament = $this->tournament;
+            return $this->get_exp($tournament, $a) - $this->get_exp($tournament, $b);
+        });
+        usort($group2, function($b, $a) {
+            $tournament = $this->tournament;
+            return $this->get_exp($tournament, $a) - $this->get_exp($tournament, $b);
+        });
+
+        // TODO smazat
+        //usort($group1, function($a, $b) {return $a->getExp() - $b->getExp();});
+        //usort($group2, function($b, $a) {return $a->getExp() - $b->getExp();});
 
         $sorted_teams = [];
         for ($i = 0; $i < count($group1); $i++) {
@@ -154,9 +206,11 @@ class GameController extends AbstractController {
 
         $i = 1;
         foreach ($sorted_teams as $team) {
-            $team->setExp($i);
-            $this->getDoctrine()->getManager()->persist($team);
-            $this->getDoctrine()->getManager()->flush();
+            $this->set_exp($this->tournament, $team, $i);
+            //TODO smazat
+            //$team->setExp($i);
+//            $this->getDoctrine()->getManager()->persist($team);
+//            $this->getDoctrine()->getManager()->flush();
             $i++;
         }
     }
