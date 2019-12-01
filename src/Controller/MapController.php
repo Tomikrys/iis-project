@@ -38,7 +38,6 @@ class MapController extends TournamentController {
 //        $teams_count = count($teams);
 //        $group1 = array_slice($teams, 0, $teams_count / 2);
 //        $group2 = array_slice($teams, $teams_count / 2);
-        dump($slice_count);
         $group1 = [];
         $group2 = [];
         for ($i = 0; $i < count($teams); $i++) {
@@ -48,14 +47,20 @@ class MapController extends TournamentController {
                 array_push($group2, $teams[$i]);
             }
         }
+        // mám group1 a group2
 
         $sorted_teams = [];
         $j = count($group2);
         for ($i = 0; $i < count($group1); $i++) {
             $j--;
             dump(array($i, $j));
-            array_push($sorted_teams, $group1[$i]);
-            array_push($sorted_teams, $group2[$j]);
+            if ($i % 2 == 0) {
+                array_unshift($sorted_teams, $group1[$i]);
+                array_unshift($sorted_teams, $group2[$j]);
+            } else {
+                array_push($sorted_teams, $group1[$i]);
+                array_push($sorted_teams, $group2[$j]);
+            }
         }
         return $sorted_teams;
     }
@@ -81,7 +86,12 @@ class MapController extends TournamentController {
                 $tournament = $this->tournament;
                 return $this->get_exp($tournament, $a) - $this->get_exp($tournament, $b);
             });
+
+            //// TODO ořez na 8 týmů
+            $teams = array_slice($teams, 0, 8);
             dump($teams);
+            ////// mám týmy seřazený podle exp
+
 
             // sorting aby to udělalo správně pavouka
             $slice_count = 0;
@@ -195,7 +205,19 @@ class MapController extends TournamentController {
             $games = $games_round2;
         }
         dump(array("games", $games));
+        $this->add_order_to_games($games);
         return array($games, $lvl);
+    }
+
+    public function add_order_to_games($games) {
+        $entityManager = $this->getDoctrine()->getManager();
+        $i = 0;
+        foreach ($games as $game) {
+            $i++;
+            $game->setDisplayOrder($i);
+            $entityManager->persist($game);
+            $entityManager->flush();
+        }
     }
 
     /**
@@ -288,9 +310,24 @@ class MapController extends TournamentController {
      */
     public function map(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
-        $games = array_filter(iterator_to_array($tournament->getGames()), array($this, "filter_spider"));
+        $games_obj = array_filter(iterator_to_array($tournament->getGames()), array($this, "filter_spider"));
+        $games = [];
+        foreach ($games_obj as $game) {
+            array_push($games, ["id" => $game->getId(), "team1" => $game->getTeam1(), "team2" => $game->getTeam2(),
+                "PointsTeam1" => $game->getPointsTeam1(), "PointsTeam2" => $game->getPointsTeam2(),
+                "round" => $game->getRound(), "DisplayOrder" => $game->getDisplayOrder()]);
+        }
+        dump($games);
         // se5ayen9 podle kola
-        usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
+        //usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
+        $sort = array();
+        foreach($games as $k=>$v) {
+            $sort['round'][$k] = $v['round'];
+            $sort['DisplayOrder'][$k] = $v['DisplayOrder'];
+        }
+        array_multisort($sort['round'], SORT_ASC, $sort['DisplayOrder'], SORT_ASC,$games);
+
+        dump($games);
         $admin = $tournament->getAdminString();
         $group1 = [];
         $group2 = [];
@@ -322,20 +359,6 @@ class MapController extends TournamentController {
     }
 
     private $tournament;
-
-    public function object_to_array($data)
-    {
-        if (is_array($data) || is_object($data))
-        {
-            $result = array();
-            foreach ($data as $key => $value)
-            {
-                $result[$key] = $this->object_to_array($value);
-            }
-            return $result;
-        }
-        return $data;
-    }
 
     /**
      * @param Request $request

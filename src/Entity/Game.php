@@ -68,6 +68,11 @@ class Game
      */
     private $type;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $DisplayOrder;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -226,5 +231,17 @@ class Game
         } else {
             return null;
         }
+    }
+
+    public function getDisplayOrder(): ?int
+    {
+        return $this->DisplayOrder;
+    }
+
+    public function setDisplayOrder(?int $DisplayOrder): self
+    {
+        $this->DisplayOrder = $DisplayOrder;
+
+        return $this;
     }
 }
