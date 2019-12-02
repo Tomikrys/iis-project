@@ -103,7 +103,7 @@
                 {% for team in group1 %}
                     <tr>
                         <td><a href="/teams/detail/{{ team.id }}">{{ team.name }}</a></td>
-                        <td>{{ team.exps div 2 }}</td>
+                        <td>{{ (team.exps // 2) + 1 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -122,7 +122,7 @@
                 {% for team in group2 %}
                     <tr>
                         <td><a href="/teams/detail/{{ team.id }}">{{ team.name }}</a></td>
-                        <td>{{ team.exps div 2 }}</td>
+                        <td>{{ team.exps // 2 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
