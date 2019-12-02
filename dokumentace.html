@@ -19,12 +19,12 @@
 <dl>
 	<dt>Autoøi</dt>
 	<dd>Tomá¹ Ry¹avý <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
-	    <a href="mailto:xautor01@stud.fit.vutbr.cz">xrysav27@stud.fit.vutbr.cz</a> -
-		popis èinnosti v týmu
+	    <a href="mailto:xrysav27@stud.fit.vutbr.cz">xrysav27@stud.fit.vutbr.cz</a> -
+		backend
 	</dd>
 	<dd>Martin Muzikáø <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
-	    <a href="mailto:xautor02@stud.fit.vutbr.cz">xmuzik06@stud.fit.vutbr.cz</a> -
-		popis èinnosti v týmu
+	    <a href="mailto:xmuzik06@stud.fit.vutbr.cz">xmuzik06@stud.fit.vutbr.cz</a> -
+		frontend
 	</dd>
 	<dt>URL aplikace</dt>
 	<dd><a href="http://pavoukovac.herokuapp.com/">http://pavoukovac.herokuapp.com/</a></dd>
@@ -34,26 +34,33 @@
 <p>Uveïte prosím existující zástupce <strong>v¹ech rolí u¾ivatelù</strong>.</p>
 <table>
 <tbody><tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
-<tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
-<tr><td>prodavac</td><td>prodavac</td><td>Prodavaè</td></tr>
-<tr><td>franta</td><td>franta</td><td>Zákazník</td></tr>
+<tr><td>admin@pavoukovac.cz</td><td>admin</td><td>Administrátor</td></tr>
+<tr><td>user@pavoukovac.cz</td><td>user</td><td>U¾ivatel, správce týmù</td></tr>
+<tr><td>user2@pavoukovac.cz</td><td>user</td><td>U¾ivatel, správce týmù</td></tr>
 </tbody></table>
 
-<p>(Diagram pøípadù u¾ití není nutné vkládat, pokud IS implementuje role a pøípady u¾ití definované zadáním.)</p> 
+<img src="usc.png" style="width:50vw; margin-right: 1%; margin-left: auto"/>
 
 <h2>Implementace</h2>
 <p>Struèná dokumentace k implementaci, která popisuje, které èásti projektu (napø. PHP skripty) implementují jednotlivé pøípady pou¾ití.</p>
 <p>Aplikace umo¾òuje prohlí¾ení v¹ech turnajù, týmù a jejich detailù v¹em nepøihlá¹eným u¾ivatelùm. Dá se proklikat i k
 detailu u¾ivatelù, ale seznam v¹ech u¾ivatelù v databázi není pøístupný.</p>
-<p>Pokud se u¾ivatel pøihlásí, je mu zpøístupnìno vytváøení týmù a turnajù. Pøihlá¹ený u¾ivatel je pokládán za kapitána týmu, tak¾e
-vytváøet hráèe, vytvá¾et týmy, do nich¾ mù¾e pøidat svoje hráèe, týmy pak mù¾e pøidávat na turnaje èi vytváøet vlastní turnaje a
+<p>Pokud se u¾ivatel pøihlásí (SecurityController), je mu zpøístupnìno vytváøení týmù (TeamController) a turnajù (TournamentController).
+	Pøihlá¹ený u¾ivatel je pokládán za kapitána týmu, tak¾e mù¾e
+vytváøet hráèe (PlayerController), vytvá¾et týmy, do nich¾ mù¾e pøidat svoje hráèe, týmy pak mù¾e pøidávat na turnaje èi vytváøet vlastní turnaje a
 pøidávat ostatní týmy.</p>
 <p>Aministrátor pak má právo krom upravy v¹eho co pøihlá¹ený u¾ivatel (tak¾e v¹ech turnajù, hráèu a týmù v¹ech u¾ivatelù), tak i
 pøidávání práv jednotlivým u¾ivatelùm.</p>
 
-<h3>Databáze</h3>
+<p>Aplikace umo¾òuje vytvoøit dva rùzné modely souboje týmù v turnaji, první, korespondující se zadáním, vytváøí z
+týmù pavouka. <br> Druhý rozdìlí v¹echny týmy do dvou skupin, a v ka¾dé skupinì hrají v¹ichni proti v¹em, nejlep¹í 4 z ka¾dé skupiny
+postupují do finále, z tìchto osmi týmù je sestaven pavouk, který se dá pou¾ít.</p>
+<p>Pøi sestavování pavouka se zohledòuje kdo je z jaké je skupiny a promixovává to podle standardu.</p>
 
-Zde vlo¾te grafické schéma relaèní databáze (tabulek v databázi).
+<p>O tvorbu her se stará GameController, o výpis MapController</p>
+
+<h3>Databáze</h3>
+<img src="erd.png" style="width:95vw; margin-right: auto; margin-left: auto"/>
 
 <h2>Instalace</h2>
 
@@ -82,12 +89,13 @@ Struènì popi¹te:
 	</ul>
 </ul>
 
-<h2>Známé problémy</h2>x
-<p>chybí implementace loga jednotlivých týmù</p>
-<p>hráèi jsou tvoøeni u¾ivateli. Jeliko¾ jednou za rok poøádáme volejbalový turnaj, rozhodli jsme se udìlat aplikaci
-	u¾iteènou a ne jen projekt pro projekt, proto jsem si dovolili upravit zadání a lehce se tímto vychylujeme.</p>
-<p>u¾ivatel se v tunajích nijak neparticipuje, jen nachytá prostøedí pro hru</p>
-<p>nelze odstranit hráèe, zpùsobilo by to nekonzistenci databáze, nevyøe¹ili jsme tento problém</p>
+<h2>Známé problémy</h2>
+<p>Chybí implementace pøidíní a vykreslení loga jednotlivých týmù.</p>
+<p>Hráèi jsou tvoøeni u¾ivateli. Jeliko¾ jednou za rok poøádáme volejbalový turnaj, rozhodli jsme se udìlat aplikaci
+	u¾iteènou a ne jen projekt pro projekt, proto jsem si dovolili upravit zadání a lehce se tímto vychylujeme, s tím
+	se pojí i implementace modelu 'rostøel'.</p>
+<p>U¾ivatel se v tunajích nijak neparticipuje, jen nachytá prostøedí pro hru.</p>
+<p>Nelze odstranit tým participující se v turnaji, zpùsobilo by to nekonzistenci databáze, nevyøe¹ili jsme tento problém.</p>
 
 <p>Zde popi¹te, které body zadání nejsou implementovány a z jakého dùvodu. Napø. &#8222;Z èasových dùvodù nebyla implementována správa u¾ivatelù.&#8221; Pomù¾ete tím zrychlit hodnocení, kdy¾ neimplementované funkce nebudeme muset dlouze hledat.</p>
 

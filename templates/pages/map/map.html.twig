@@ -96,14 +96,14 @@
                 <thead class="thead-dark">
                 <tr>
                     <th>Tým</th>
-                    <th>Score</th>
+                    <th>Pořadí</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for team in group1 %}
                     <tr>
                         <td><a href="/teams/detail/{{ team.id }}">{{ team.name }}</a></td>
-                        <td>{{ team.exps }}</td>
+                        <td>{{ team.exps div 2 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -115,14 +115,14 @@
                 <thead class="thead-dark">
                 <tr>
                     <th>Tým</th>
-                    <th>Score</th>
+                    <th>Pořadí</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for team in group2 %}
                     <tr>
                         <td><a href="/teams/detail/{{ team.id }}">{{ team.name }}</a></td>
-                        <td>{{ team.exps }}</td>
+                        <td>{{ team.exps div 2 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
