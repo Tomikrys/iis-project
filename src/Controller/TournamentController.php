@@ -101,12 +101,23 @@ class TournamentController extends AbstractController
             $this->remove_team($request, $id, $team->getId());
         }
 
+        $games = $tournament->getGames();
+        foreach ($games as $game) {
+            $tournament->removeGame($game);
+        }
+
         //dump($this->getUser());
         //dump($tournament->getAdminString());
 
         $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($tournament);
-        $entityManager->flush();
+        try {
+            $entityManager->remove($tournament);
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Turnaj \'' . $tournament->getName() . '\' již je rozehrán není možné jej odstranit.');
+            return new Response();
+        }
+
         // vytvoření flash oznámení
         $this->addFlash('warning', 'Turnaj \'' . $tournament->getName() . '\' byl odstraněn.');
         return new Response();
