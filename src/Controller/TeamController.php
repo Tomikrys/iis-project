@@ -72,8 +72,7 @@ class TeamController extends AbstractController
      */
     public function delete(Request $request, $id) {
         $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
-        //dump($team);
-        //dump($id);
+
         $entityManager = $this->getDoctrine()->getManager();
         try {
             $entityManager->remove($team);

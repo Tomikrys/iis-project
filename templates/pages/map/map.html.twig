@@ -54,6 +54,7 @@
                                 <td class="team1_points"
                                         {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
                                             contenteditable="true"
+                                            onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                         {% endif %}
                                     tabindex={{ counter }}>{{ game.PointsTeam1[i-1] }}</td>
                                 {% set counter = counter + 1 %}
@@ -66,6 +67,7 @@
                                 <td class="team2_points"
                                         {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
                                             contenteditable="true"
+                                            onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                         {% endif %}
                                     tabindex={{ counter }}>{{ game.PointsTeam2[i-1] }}</td>
                                 {% set counter = counter + 1 %}

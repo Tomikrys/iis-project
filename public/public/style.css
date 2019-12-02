@@ -23,7 +23,13 @@ body, button, input {
     width: auto !important;
 }
 
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, nav a {
+    font-family: 'Pangolin', cursive !important;
+}
+
 nav .navbar-brand {
+    font-family: "Cabin Sketch", cursive !important;
     font-size: xx-large;
 }
 
@@ -31,13 +37,8 @@ nav a {
     font-size: x-large;
 }
 
-h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, nav a {
-    /*font-family: 'Amatic SC', bold !important;*/
-    font-family: 'Pangolin', cursive !important;
-}
-
-input:required {
-    -webkit-box-shadow: 0px 0px 6px -1px darkblue;
-    -moz-box-shadow: 0px 0px 6px -1px darkblue;
-    box-shadow: 0px 0px 6px -1px darkblue;
+input:required, select:required, #form_date {
+    -webkit-box-shadow: 0px 0px 6px -1px darkred;
+    -moz-box-shadow: 0px 0px 6px -1px darkred;
+    box-shadow: 0px 0px 6px -1px darkred;
 }

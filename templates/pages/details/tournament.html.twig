@@ -5,20 +5,23 @@
     <h1>Detail turnaje: {{ tournament.name }}</h1>
 
     <h2>Pavouk</h2>
-
-    <a href="/tournaments/detail/{{ tournament.id }}/ordering" class="mb-1 btn btn-success">Zobrazit rozstřel</a>
-    {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
-        <button onclick="generate_games_ordering({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat rozstřel</button>
-    {% endif %}
-
-    <br>
-
+    <p class="text-info">Tip: Po vyplnění rozstřelu je možno na jeho základě generovat pavouka.</p>
     <a href="/tournaments/detail/{{ tournament.id }}/map" class="mb-1 btn btn-success">Zobrazit pavouka</a>
     {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
+        <br>
+        <small class="form-text text-muted">Vygeneruje ze sudého počtu týmů pavouka.</small>
         <button onclick="generate_games_map({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat pavouka náhodně</button>
-        <button onclick="generate_games_map_from_ordering({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat pavouka na základě rozstřelu</button>
+        <small class="form-text text-muted">Z rozstřelu se vezmou z každé skupiny 4 nejlepší týmy, z těch se pak poskládá pavouk.</small>
+        <button type="button" onclick="generate_games_map_from_ordering({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat pavouka na základě výsledků rozstřelu</button>
     {% endif %}
 
+    <h2>Rozstřel</h2>
+    <a href="/tournaments/detail/{{ tournament.id }}/ordering" class="mb-1 btn btn-success">Zobrazit rozstřel</a>
+    {% if is_granted('ROLE_ADMIN') or (app.user is not null and admin == app.user.email) %}
+        <br>
+        <small class="form-text text-muted">Rostřel rozhodí týmy do 2 skupin, v těch hraje každý s každým.</small>
+        <button type="button" onclick="generate_games_ordering({{ tournament.id }})" class="mb-1 btn btn-danger">Generovat rozstřel</button>
+    {% endif %}
     <h2>Datum</h2>
     <p>{{ tournament_date }}</p>
 

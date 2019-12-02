@@ -321,6 +321,8 @@ class MapController extends TournamentController {
         // se5ayen9 podle kola
         //usort($games, function($a, $b) {return $a->getRound() - $b->getRound();});
         $sort = array();
+        $sort['round'] = [];
+        $sort['DisplayOrder'] = [];
         foreach($games as $k=>$v) {
             $sort['round'][$k] = $v['round'];
             $sort['DisplayOrder'][$k] = $v['DisplayOrder'];

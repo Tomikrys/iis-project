@@ -54,6 +54,7 @@ class TournamentController extends AbstractController
             ->add('date', DateType::class, array(
                 'label' => 'Datum',
                 'widget' => 'choice',
+                'required' => true,
                 'input'  => 'datetime',
                 'format' => 'dd. MM. yyyy',
                 'data' => new \DateTime(),
@@ -83,27 +84,32 @@ class TournamentController extends AbstractController
     /**
      * @param Request $request
      * @param $id
-     * @Route("/tournament/delete/{id}", methods={"DELETE"})
+     * @return Response
+     * @Route("/tournaments/delete/{id}", methods={"DELETE"})
      *
      * funkce k odstranění turnaje z databáze
      */
     public function delete(Request $request, $id) {
         $tournament = $this->getDoctrine()->getRepository(Tournament::class)->find($id);
-
-        //dump($this->getUser());
-        //dump($tournament->getAdminString());
-        if ($this->getUser() != $tournament->getAdminString()) {
+        if (!($this->getUser()->getEmail() == $tournament->getAdminString() or $this->getUser()->hasRole("ROLE_ADMIN"))) {
             //dump($tournament);
             exit;
         }
-        exit;
+        $teams = $tournament->getTeams();
+        $request = new Request();
+        foreach ($teams as $team) {
+            $this->remove_team($request, $id, $team->getId());
+        }
+
+        //dump($this->getUser());
+        //dump($tournament->getAdminString());
+
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($tournament);
         $entityManager->flush();
         // vytvoření flash oznámení
         $this->addFlash('warning', 'Turnaj \'' . $tournament->getName() . '\' byl odstraněn.');
-        $response = new Response();
-        $response->send();
+        return new Response();
     }
 
     /**

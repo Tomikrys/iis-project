@@ -16,7 +16,7 @@
                 <div class="card-footer text-muted">
                     <a href="/{{ table.name }}/edit/{{ row.id }}" class="btn btn-warning edit-item showloading">Upravit</a>
                     {#                        <button type="button" class="btn btn-warning edit-item" data-toggle="modal" data-id="{{ row.id }}" data-target="#editFormModal">Upravit</button>#}
-                    <a href="#" class="btn btn-danger delete-item showloading" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
+                    <a href="#" class="btn btn-danger delete-item donotshowloading" data-id="{{ row.id }}" data-table="{{ table.name }}">Smazat</a>
                 </div>
                 {% endif %}
             </div>
